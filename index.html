@@ -1,0 +1,1875 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>LUMEN // Tactile Typewriter</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Authentic Typewriter & UI Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@300;400;500;600&family=Special+Elite&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --paper-base: #b8bcc6;
+      --ink-color: #1f2229;
+      --rail-Y: 76vh;
+      --font-typewriter: 'Courier Prime', monospace;
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      background-color: var(--paper-base);
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      cursor: text;
+    }
+
+    /* Ultra-subtle matte paper grain overlay */
+    .paper-grain {
+      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 240 240' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.038'/%3E%3C/svg%3E");
+    }
+
+    /* Pure Flat 2D Full-Screen Viewport */
+    #viewport-stage {
+      width: 100vw;
+      height: 100vh;
+      position: relative;
+      overflow: hidden;
+    }
+
+    /* Full-width Horizontal Metallic Rail at 76vh */
+    .metallic-rail {
+      position: absolute;
+      left: 0;
+      width: 100vw;
+      height: 3.5px;
+      top: var(--rail-Y);
+      z-index: 30;
+      background: linear-gradient(
+        180deg,
+        #8c92a0 0%,
+        #2c303a 35%,
+        #1a1d24 80%,
+        #4e5361 100%
+      );
+      box-shadow:
+        0 -1px 0px rgba(255, 255, 255, 0.35),
+        0 3px 6px rgba(15, 18, 26, 0.34),
+        0 6px 14px rgba(15, 18, 26, 0.16);
+      pointer-events: none;
+    }
+
+    /* Subtle groove line just above the rail */
+    .rail-groove {
+      position: absolute;
+      left: 0;
+      width: 100vw;
+      height: 1px;
+      top: calc(var(--rail-Y) - 1px);
+      background: rgba(20, 23, 31, 0.25);
+      z-index: 29;
+      pointer-events: none;
+    }
+
+    /* Pill Carriage Assembly */
+    .pill-carriage-wrapper {
+      position: absolute;
+      top: var(--rail-Y);
+      left: 0;
+      z-index: 40;
+      pointer-events: none;
+      will-change: transform;
+    }
+
+    /* Matte Ceramic Off-White/Silver Capsule (64px x 22px) */
+    .pill-body {
+      position: relative;
+      width: 64px;
+      height: 22px;
+      margin-left: -32px; /* Centered on active cursor X */
+      margin-top: -9.25px; /* Sitting directly on the 3.5px rail */
+      border-radius: 999px;
+      background: linear-gradient(
+        170deg,
+        #f2f3f7 0%,
+        #e1e4ec 48%,
+        #c8cdd8 88%,
+        #b6bcc9 100%
+      );
+      box-shadow:
+        inset 0 1.5px 2px rgba(255, 255, 255, 0.95),
+        inset 0 -2px 3px rgba(70, 76, 92, 0.32),
+        0 4px 9px rgba(16, 20, 30, 0.34),
+        0 1.5px 3px rgba(16, 20, 30, 0.24);
+      border: 0.5px solid rgba(145, 152, 168, 0.65);
+      display: flex;
+      align-items: center;
+      padding-left: 11px;
+      transition: transform 0.04s ease-out;
+    }
+
+    body.theme-dark .pill-body {
+      background: linear-gradient(
+        170deg,
+        #dfe2ea 0%,
+        #c2c6d2 50%,
+        #979ca9 100%
+      );
+      box-shadow:
+        inset 0 1.5px 2px rgba(255, 250, 240, 0.85),
+        inset 0 -2px 3px rgba(25, 28, 38, 0.5),
+        0 5px 12px rgba(0, 0, 0, 0.65);
+    }
+
+    /* 3 Micro-LED Dots on the Left Side of the Pill */
+    .led-cluster {
+      display: flex;
+      align-items: center;
+      gap: 3.5px;
+    }
+
+    .micro-led {
+      width: 3.5px;
+      height: 3.5px;
+      border-radius: 50%;
+      transition: all 0.15s ease;
+    }
+
+    /* 1. Warm glowing amber LED (#f59e0b) */
+    .led-amber {
+      background-color: #f59e0b;
+      box-shadow:
+        0 0 4px 1px rgba(245, 158, 11, 0.85),
+        0 0 7px 2px rgba(245, 158, 11, 0.4);
+    }
+
+    /* 2. Soft warm white LED (#ffffff) */
+    .led-white {
+      background-color: #ffffff;
+      box-shadow:
+        0 0 4px 1px rgba(255, 252, 235, 0.9),
+        0 0 6px 1.5px rgba(255, 244, 214, 0.4);
+    }
+
+    /* 3. Tiny dark slate pinhole LED (#374151, flashes near right margin) */
+    .led-muted {
+      background-color: #374151;
+      box-shadow: inset 0 0.5px 1px rgba(0, 0, 0, 0.6);
+    }
+
+    .led-muted.margin-warning {
+      background-color: #f59e0b;
+      box-shadow:
+        0 0 5px 1.5px rgba(245, 158, 11, 0.95),
+        0 0 9px 2.5px rgba(239, 68, 68, 0.55);
+    }
+
+    /* Physical T-Striker (Typebar Hammer: 13px tall, 1.5px stem, 9px crossbar) */
+    .striker-assembly {
+      position: absolute;
+      left: 50%;
+      top: -13px;
+      transform: translateX(-50%);
+      width: 11px;
+      height: 13px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      z-index: -1;
+      will-change: transform;
+    }
+
+    /* Horizontal Top Crossbar (9px wide) */
+    .striker-head {
+      width: 9px;
+      height: 1.7px;
+      border-radius: 1px;
+      background: linear-gradient(90deg, #232730, #4b5162, #232730);
+      box-shadow: 0 1px 1.5px rgba(0, 0, 0, 0.24);
+    }
+
+    /* Vertical Metallic Stem (1.5px wide) */
+    .striker-shaft {
+      width: 1.5px;
+      height: 11.3px;
+      background: linear-gradient(90deg, #2b303b, #636a7c, #232730);
+    }
+
+    /* Small collar at top center of pill */
+    .striker-collar {
+      width: 4.5px;
+      height: 1.5px;
+      border-radius: 1px 1px 0 0;
+      background: #787f91;
+      margin-top: -1px;
+    }
+
+    /* Upward 5px strike animation on keystroke */
+    .striker-assembly.striking {
+      animation: hammerStrike 0.06s cubic-bezier(0.16, 0.9, 0.25, 1) forwards;
+    }
+
+    .pill-body.jolting {
+      animation: pillJolt 0.065s ease-out forwards;
+    }
+
+    @keyframes hammerStrike {
+      0% { transform: translateX(-50%) translateY(0); }
+      45% { transform: translateX(-50%) translateY(-5px); }
+      100% { transform: translateX(-50%) translateY(0); }
+    }
+
+    @keyframes pillJolt {
+      0% { transform: translateY(0); }
+      45% { transform: translateY(0.8px); }
+      100% { transform: translateY(0); }
+    }
+
+    /* Subtle impact ring at hammer tip */
+    .strike-spark {
+      position: absolute;
+      top: -16px;
+      left: 50%;
+      width: 7px;
+      height: 3.5px;
+      margin-left: -3.5px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(31, 34, 41, 0.24) 0%, transparent 75%);
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .strike-spark.active {
+      animation: sparkPulse 0.12s ease-out forwards;
+    }
+
+    @keyframes sparkPulse {
+      0% { opacity: 0.85; transform: scale(0.6); }
+      100% { opacity: 0; transform: scale(1.9); }
+    }
+
+    /* Crisp Typewriter Ink Layer (Rendered strictly ABOVE the light layer) */
+    .typewriter-text {
+      font-family: var(--font-typewriter);
+      color: var(--ink-color);
+      font-feature-settings: "kern" 0, "liga" 0;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* Individual stamped character cell */
+    .char-cell {
+      display: inline-block;
+      position: relative;
+      white-space: pre;
+      transform-origin: bottom center;
+    }
+
+    /* Freshly struck ink impression animation */
+    .char-fresh {
+      animation: freshInkStamp 0.14s ease-out forwards;
+    }
+
+    @keyframes freshInkStamp {
+      0% {
+        transform: scale(1.03) translateY(0.4px);
+      }
+      100% {
+        transform: scale(1) translateY(0);
+      }
+    }
+
+    /* Faint half-struck ghost character right above the T-striker */
+    .char-ghost-preview {
+      opacity: 0.28;
+      color: var(--ink-color);
+      transition: opacity 0.15s ease;
+    }
+
+    /* Overstrike character layered on top in Overstrike Mode */
+    .overstrike-layer {
+      position: absolute;
+      left: 0;
+      top: 0;
+      pointer-events: none;
+      color: var(--ink-color);
+    }
+
+    /* Discreet HUD Glassmorphism */
+    .hud-glass {
+      background: rgba(24, 27, 36, 0.82);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+    }
+
+    /* Custom Range Sliders */
+    input[type="range"].tactile-slider {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 4px;
+      background: rgba(255, 255, 255, 0.18);
+      border-radius: 999px;
+      outline: none;
+    }
+    input[type="range"].tactile-slider::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      background: #f59e0b;
+      cursor: pointer;
+      border: 2px solid #fffdf9;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+    }
+
+    /* Paper Sheet Eject / Clear Page Animation */
+    .paper-ejecting {
+      animation: paperEject 0.55s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    }
+
+    @keyframes paperEject {
+      0% { transform: translateY(0); opacity: 1; }
+      45% { transform: translateY(-110px); opacity: 0; }
+      46% { transform: translateY(60px); opacity: 0; }
+      100% { transform: translateY(0); opacity: 1; }
+    }
+  </style>
+</head>
+<body class="select-none">
+
+  <!-- Hidden mobile/IME input for seamless typing -->
+  <textarea
+    id="hidden-typewriter-input"
+    autocomplete="off"
+    autocorrect="off"
+    autocapitalize="off"
+    spellcheck="false"
+    aria-label="Typewriter Input"
+    class="fixed -top-96 left-0 opacity-0 w-1 h-1 pointer-events-none"
+  ></textarea>
+
+  <!-- Pure Flat 2D Viewport Stage -->
+  <div id="viewport-stage">
+
+    <!-- LAYER 1 (z-0): Ambient Paper Surface Base -->
+    <div id="paper-backdrop" class="absolute inset-0 z-0 transition-colors duration-300"></div>
+
+    <!-- LAYER 2 (z-10): Background Spotlight Canvas (Strictly BEHIND the ink layer so text is never washed out) -->
+    <canvas id="spotlight-canvas" class="absolute inset-0 w-full h-full pointer-events-none z-10"></canvas>
+
+    <!-- LAYER 3 (z-15): Subtle Matte Paper Grain (Behind Ink) -->
+    <div class="paper-grain absolute inset-0 pointer-events-none" style="z-index: 15;"></div>
+
+    <!-- LAYER 4 (z-25): Crisp High-Contrast Typewriter Ink Layer (Clipped cleanly at the 76vh horizontal rail) -->
+    <div
+      id="paper-clip-region"
+      class="absolute inset-x-0 top-0 overflow-hidden pointer-events-none"
+      style="height: var(--rail-Y); z-index: 25;"
+    >
+      <div
+        id="paper-sheet"
+        class="w-full h-full relative"
+      >
+        <!-- Stamped dark charcoal ink lines sit cleanly on top of the lit paper -->
+        <div id="lines-container" class="absolute left-0 right-0 bottom-0"></div>
+      </div>
+    </div>
+
+    <!-- LAYER 5 (z-25): Lower Paper Platen Shadow Below the Rail -->
+    <div
+      id="below-rail-paper"
+      class="absolute inset-x-0 bottom-0 pointer-events-none"
+      style="top: var(--rail-Y); z-index: 25; background: linear-gradient(180deg, rgba(18, 21, 30, 0.14) 0px, rgba(18, 21, 30, 0.03) 12px, rgba(15, 18, 26, 0.08) 100%);"
+    ></div>
+
+    <!-- LAYER 6 (z-30): Horizontal Metallic Rail at 76vh -->
+    <div class="rail-groove"></div>
+    <div class="metallic-rail"></div>
+
+    <!-- LAYER 7 (z-40): Sliding Pill Carriage & Physical T-Striker -->
+    <div id="pill-carriage" class="pill-carriage-wrapper">
+      <!-- Physical T-Shaped Metallic Typebar Striker -->
+      <div id="striker-pin" class="striker-assembly">
+        <div class="striker-head"></div>
+        <div class="striker-shaft"></div>
+        <div class="striker-collar"></div>
+      </div>
+      <!-- Subtle impact ring -->
+      <div id="strike-spark" class="strike-spark"></div>
+
+      <!-- Matte Ceramic Pill Body with 3 Micro-LEDs -->
+      <div id="pill-body" class="pill-body">
+        <div class="led-cluster">
+          <div id="led-1" class="micro-led led-amber"></div>
+          <div id="led-2" class="micro-led led-white"></div>
+          <div id="led-3" class="micro-led led-muted"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- ULTRA-MINIMALIST TOP-RIGHT HOVER PILL (opacity: 0.2, 1.0 on hover)        -->
+  <!-- ========================================================================= -->
+  <div
+    id="minimal-hud"
+    class="fixed top-4 right-5 z-50 transition-opacity duration-300 opacity-20 hover:opacity-100 focus-within:opacity-100"
+    style="cursor: default;"
+  >
+    <div class="flex items-center gap-1 px-2.5 py-1 rounded-full hud-glass text-slate-200 text-[11px]">
+      <!-- Lamp Brightness & Settings Popover Button -->
+      <button
+        id="btn-settings"
+        type="button"
+        class="flex items-center gap-1 px-2 py-0.5 rounded-full hover:bg-white/10 transition text-amber-300"
+        title="Lamp Brightness & Typewriter Settings"
+      >
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+        </svg>
+        <span>Lamp</span>
+      </button>
+
+      <span class="text-white/15">|</span>
+
+      <!-- Key Click Audio Quick Toggle -->
+      <button
+        id="quick-audio-btn"
+        type="button"
+        class="px-2 py-0.5 rounded-full hover:bg-white/10 transition text-slate-200"
+        title="Toggle Mechanical Key Click Audio"
+      >
+        Keys: On
+      </button>
+
+      <span class="text-white/15">|</span>
+
+      <!-- Rain Ambience Quick Toggle -->
+      <button
+        id="quick-rain-btn"
+        type="button"
+        class="px-2 py-0.5 rounded-full hover:bg-white/10 transition text-slate-300"
+        title="Toggle Soft Rain Ambience"
+      >
+        Rain: Off
+      </button>
+
+      <span class="text-white/15">|</span>
+
+      <!-- Clear Page -->
+      <button
+        id="action-new-sheet"
+        type="button"
+        class="px-2 py-0.5 rounded-full hover:bg-white/10 transition text-slate-300 hover:text-white"
+        title="Clear Page"
+      >
+        Clear
+      </button>
+
+      <span class="text-white/15">|</span>
+
+      <!-- Export (.txt) -->
+      <button
+        id="action-export-txt"
+        type="button"
+        class="px-2 py-0.5 rounded-full hover:bg-white/10 transition text-emerald-300"
+        title="Export Manuscript (.txt)"
+      >
+        .txt
+      </button>
+    </div>
+
+    <!-- Discreet Settings Popover (Lamp Brightness, Paper Mode, Typeface, Overstrike) -->
+    <div
+      id="popover-settings"
+      class="hidden absolute right-0 mt-2 w-64 p-3.5 rounded-2xl hud-glass text-slate-200 shadow-2xl space-y-3"
+    >
+      <div class="flex items-center justify-between border-b border-white/10 pb-1.5">
+        <span class="font-medium text-[11px] uppercase tracking-wider text-slate-300">Lamp & Mechanics</span>
+        <span id="stats-counter" class="text-[10px] text-slate-400 font-mono">5 words</span>
+      </div>
+
+      <!-- Lamp Brightness Slider -->
+      <div>
+        <div class="flex justify-between text-[11px] mb-1">
+          <span class="text-slate-300">Lamp Brightness</span>
+          <span id="val-intensity" class="text-amber-300 font-mono">75%</span>
+        </div>
+        <input id="slider-intensity" type="range" min="0.15" max="1.0" step="0.05" value="0.75" class="tactile-slider" />
+      </div>
+
+      <!-- Paper Surface Mode (Standard Slate #b8bcc6 vs Dark Mode #16181f) -->
+      <div>
+        <label class="block text-[10px] uppercase tracking-wider text-slate-400 mb-1">Paper Surface</label>
+        <div class="grid grid-cols-2 gap-1.5">
+          <button data-theme="standard" class="theme-btn px-2.5 py-1 rounded-lg text-[11px] bg-white/15 text-white font-medium text-left flex items-center gap-1.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-[#b8bcc6] border border-white/40"></span> Slate Paper
+          </button>
+          <button data-theme="dark" class="theme-btn px-2.5 py-1 rounded-lg text-[11px] bg-white/5 hover:bg-white/10 text-slate-300 text-left flex items-center gap-1.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-[#16181f] border border-white/40"></span> Dark Mode
+          </button>
+        </div>
+      </div>
+
+      <!-- Typewriter Font Selector -->
+      <div>
+        <label class="block text-[10px] uppercase tracking-wider text-slate-400 mb-1">Typeface</label>
+        <div class="grid grid-cols-3 gap-1">
+          <button data-font="'Courier Prime', monospace" class="font-btn px-2 py-1 rounded bg-white/15 text-white text-[11px] font-mono">Courier</button>
+          <button data-font="'Special Elite', monospace" class="font-btn px-2 py-1 rounded bg-white/5 hover:bg-white/10 text-slate-300 text-[11px]" style="font-family: 'Special Elite', monospace;">Elite</button>
+          <button data-font="'IBM Plex Mono', monospace" class="font-btn px-2 py-1 rounded bg-white/5 hover:bg-white/10 text-slate-300 text-[11px]" style="font-family: 'IBM Plex Mono', monospace;">Plex</button>
+        </div>
+      </div>
+
+      <!-- Backspace Mode -->
+      <div>
+        <label class="block text-[10px] uppercase tracking-wider text-slate-400 mb-1">Backspace Action</label>
+        <div class="grid grid-cols-2 gap-1.5">
+          <button id="mode-ribbon" type="button" class="px-2 py-1 rounded-lg text-[11px] bg-white/15 text-white font-medium">
+            Clean Erase
+          </button>
+          <button id="mode-overstrike" type="button" class="px-2 py-1 rounded-lg text-[11px] bg-white/5 hover:bg-white/10 text-slate-300">
+            Overstrike
+          </button>
+        </div>
+      </div>
+
+      <!-- Restore Initial Reference Scene -->
+      <div class="pt-1 border-t border-white/10 flex justify-between items-center">
+        <button
+          id="action-reset-scene"
+          type="button"
+          class="text-[11px] text-amber-300 hover:underline"
+        >
+          Restore Reference Text
+        </button>
+        <button
+          id="action-copy-text"
+          type="button"
+          class="text-[11px] text-slate-300 hover:text-white"
+        >
+          Copy Text
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Subtle Toast Notification Box -->
+  <div
+    id="toast-box"
+    class="fixed bottom-4 right-5 z-50 px-3.5 py-1.5 rounded-full hud-glass text-[11px] text-amber-200 pointer-events-none opacity-0 translate-y-2 transition-all duration-300"
+  >
+    Saved
+  </div>
+
+  <!-- ========================================================================= -->
+  <!-- APPLICATION LOGIC, BALANCED SPOTLIGHT SHADER & AUDIO ENGINE               -->
+  <!-- ========================================================================= -->
+  <script>
+    (function () {
+      'use strict';
+
+      // -----------------------------------------------------------------------
+      // 1. CONFIGURATION & INITIAL REFERENCE SCENE STATE
+      // -----------------------------------------------------------------------
+      const STORAGE_KEY = 'lumen_tactile_typewriter_state_v2';
+
+      // Exact initial scene from the reference image: "The rain was heavy, he"
+      // with a faint half-struck "r" right above the T-striker
+      const INITIAL_REFERENCE_TEXT = 'The rain was heavy, he';
+      const INITIAL_GHOST_CHAR = 'r';
+
+      const THEMES = {
+        standard: {
+          name: 'Slate Paper',
+          paperBase: '#b8bcc6',
+          inkColor: '#1f2229',
+          // Smooth warm ivory (#faf3e3) -> warm cream (#e8e1d3) -> cool slate (#b8bcc6)
+          coneCore: [250, 243, 227],
+          coneMid: [242, 234, 214],
+          coneOuter: [232, 225, 211]
+        },
+        dark: {
+          name: 'Dark Mode',
+          paperBase: '#16181f',
+          inkColor: '#1a1d24',
+          // Warm lit paper cone in dark room so dark charcoal ink stays crisp inside the beam
+          coneCore: [238, 228, 206],
+          coneMid: [204, 193, 172],
+          coneOuter: [120, 115, 108]
+        }
+      };
+
+      const state = {
+        lines: [],
+        currentLineIndex: 0,
+        cursorCol: 0,
+        ghostChar: INITIAL_GHOST_CHAR,
+
+        // Flat 2D layout metrics (max-width: 720px centered typing column, 20px font, rail at 76vh)
+        maxCols: 56,
+        charWidth: 12.0,
+        lineHeight: 34,
+        railYRatio: 0.76,
+        railY: window.innerHeight * 0.76,
+        leftMarginPx: 0,
+
+        // Smooth damped lerp for sliding pill carriage & vertical paper feed
+        targetCarriageX: window.innerWidth * 0.5,
+        currentCarriageX: window.innerWidth * 0.5,
+        paperScrollOffsetLines: 0,
+        currentPaperY: 0,
+        targetPaperY: 0,
+
+        // Balanced lamp settings (no glare/overexposure)
+        themeKey: 'standard',
+        lampIntensity: 0.75,
+        coneSpreadDeg: 78,
+        fontFamily: "'Courier Prime', monospace",
+
+        // Audio & Mechanics settings
+        mechSoundEnabled: true,
+        mechVolume: 0.8,
+        rainEnabled: false,
+        rainVolume: 0.4,
+        correctionMode: 'ribbon'
+      };
+
+      // DOM Elements
+      const dom = {
+        stage: document.getElementById('viewport-stage'),
+        paperBackdrop: document.getElementById('paper-backdrop'),
+        spotlightCanvas: document.getElementById('spotlight-canvas'),
+        paperClipRegion: document.getElementById('paper-clip-region'),
+        paperSheet: document.getElementById('paper-sheet'),
+        linesContainer: document.getElementById('lines-container'),
+        pillCarriage: document.getElementById('pill-carriage'),
+        pillBody: document.getElementById('pill-body'),
+        strikerPin: document.getElementById('striker-pin'),
+        strikeSpark: document.getElementById('strike-spark'),
+        led1: document.getElementById('led-1'),
+        led2: document.getElementById('led-2'),
+        led3: document.getElementById('led-3'),
+        hiddenInput: document.getElementById('hidden-typewriter-input'),
+        hud: document.getElementById('minimal-hud'),
+        statsCounter: document.getElementById('stats-counter'),
+        toastBox: document.getElementById('toast-box'),
+
+        // Top-right discreet controls
+        btnSettings: document.getElementById('btn-settings'),
+        popoverSettings: document.getElementById('popover-settings'),
+        sliderIntensity: document.getElementById('slider-intensity'),
+        valIntensity: document.getElementById('val-intensity'),
+        quickAudioBtn: document.getElementById('quick-audio-btn'),
+        quickRainBtn: document.getElementById('quick-rain-btn'),
+        modeRibbon: document.getElementById('mode-ribbon'),
+        modeOverstrike: document.getElementById('mode-overstrike'),
+        actionResetScene: document.getElementById('action-reset-scene'),
+        actionNewSheet: document.getElementById('action-new-sheet'),
+        actionExportTxt: document.getElementById('action-export-txt'),
+        actionCopyText: document.getElementById('action-copy-text')
+      };
+
+      const ctx = dom.spotlightCanvas.getContext('2d');
+
+      // -----------------------------------------------------------------------
+      // 2. PROCEDURAL WEB AUDIO SYNTHESIZER (Mechanical Keys, Bell & Rain)
+      // -----------------------------------------------------------------------
+      class TypewriterAudioEngine {
+        constructor() {
+          this.audioCtx = null;
+          this.noiseBuffer = null;
+          this.rainNode = null;
+          this.rainGain = null;
+          this.thunderTimer = null;
+        }
+
+        init() {
+          if (!this.audioCtx) {
+            const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+            if (!AudioContextClass) return;
+            this.audioCtx = new AudioContextClass();
+            this.createNoiseBuffer();
+          }
+          if (this.audioCtx && this.audioCtx.state === 'suspended') {
+            this.audioCtx.resume();
+          }
+        }
+
+        createNoiseBuffer() {
+          const sampleRate = this.audioCtx.sampleRate;
+          const length = sampleRate * 3; // 3 seconds of seamless white/pink noise
+          const buffer = this.audioCtx.createBuffer(1, length, sampleRate);
+          const data = buffer.getChannelData(0);
+          for (let i = 0; i < length; i++) {
+            data[i] = Math.random() * 2 - 1;
+          }
+          this.noiseBuffer = buffer;
+        }
+
+        // Crisp mechanical typebar strike against paper & rubber platen
+        playKeyStrike(isSpace = false) {
+          if (!state.mechSoundEnabled || state.mechVolume <= 0.01) return;
+          this.init();
+          if (!this.audioCtx) return;
+
+          const now = this.audioCtx.currentTime;
+          const vol = state.mechVolume;
+          const pitchJitter = 0.92 + Math.random() * 0.16;
+
+          // 1. Metallic Hammer Impact Click (Bandpass Noise Burst)
+          const noiseSrc = this.audioCtx.createBufferSource();
+          noiseSrc.buffer = this.noiseBuffer;
+
+          const filter = this.audioCtx.createBiquadFilter();
+          filter.type = 'bandpass';
+          filter.frequency.setValueAtTime((isSpace ? 1600 : 3100) * pitchJitter, now);
+          filter.Q.setValueAtTime(isSpace ? 1.8 : 2.6, now);
+
+          const clickGain = this.audioCtx.createGain();
+          clickGain.gain.setValueAtTime(0.001, now);
+          clickGain.gain.linearRampToValueAtTime((isSpace ? 0.38 : 0.55) * vol, now + 0.002);
+          clickGain.gain.exponentialRampToValueAtTime(0.0001, now + (isSpace ? 0.045 : 0.024));
+
+          noiseSrc.connect(filter);
+          filter.connect(clickGain);
+          clickGain.connect(this.audioCtx.destination);
+          noiseSrc.start(now, Math.random() * 2, 0.06);
+
+          // 2. Woody / Platen Thud Body (Pitch-envelope Triangle Oscillator)
+          const osc = this.audioCtx.createOscillator();
+          osc.type = 'triangle';
+          const startFreq = (isSpace ? 135 : 210) * pitchJitter;
+          const endFreq = (isSpace ? 44 : 62) * pitchJitter;
+          osc.frequency.setValueAtTime(startFreq, now);
+          osc.frequency.exponentialRampToValueAtTime(endFreq, now + (isSpace ? 0.055 : 0.032));
+
+          const bodyGain = this.audioCtx.createGain();
+          bodyGain.gain.setValueAtTime((isSpace ? 0.52 : 0.36) * vol, now);
+          bodyGain.gain.exponentialRampToValueAtTime(0.0001, now + (isSpace ? 0.065 : 0.038));
+
+          osc.connect(bodyGain);
+          bodyGain.connect(this.audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.07);
+
+          // 3. Tiny metallic spring resonance tail
+          const springOsc = this.audioCtx.createOscillator();
+          springOsc.type = 'sine';
+          springOsc.frequency.setValueAtTime(1480 * pitchJitter, now + 0.005);
+          const springGain = this.audioCtx.createGain();
+          springGain.gain.setValueAtTime(0.035 * vol, now + 0.005);
+          springGain.gain.exponentialRampToValueAtTime(0.0001, now + 0.045);
+
+          springOsc.connect(springGain);
+          springGain.connect(this.audioCtx.destination);
+          springOsc.start(now + 0.005);
+          springOsc.stop(now + 0.05);
+        }
+
+        // Subtle mechanical escapement release click on keyup
+        playKeyRelease() {
+          if (!state.mechSoundEnabled || state.mechVolume <= 0.01) return;
+          if (!this.audioCtx) return;
+
+          const now = this.audioCtx.currentTime;
+          const vol = state.mechVolume * 0.22;
+
+          const noiseSrc = this.audioCtx.createBufferSource();
+          noiseSrc.buffer = this.noiseBuffer;
+
+          const filter = this.audioCtx.createBiquadFilter();
+          filter.type = 'highpass';
+          filter.frequency.setValueAtTime(2400, now);
+
+          const gain = this.audioCtx.createGain();
+          gain.gain.setValueAtTime(vol, now);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.012);
+
+          noiseSrc.connect(filter);
+          filter.connect(gain);
+          gain.connect(this.audioCtx.destination);
+          noiseSrc.start(now, Math.random() * 2, 0.02);
+        }
+
+        // Crisp ratchet pawl click for Backspace
+        playBackspaceTick() {
+          if (!state.mechSoundEnabled || state.mechVolume <= 0.01) return;
+          this.init();
+          if (!this.audioCtx) return;
+
+          const now = this.audioCtx.currentTime;
+          const vol = state.mechVolume * 0.45;
+
+          const osc = this.audioCtx.createOscillator();
+          osc.type = 'square';
+          osc.frequency.setValueAtTime(1100, now);
+          osc.frequency.exponentialRampToValueAtTime(380, now + 0.018);
+
+          const gain = this.audioCtx.createGain();
+          gain.gain.setValueAtTime(vol, now);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.02);
+
+          osc.connect(gain);
+          gain.connect(this.audioCtx.destination);
+          osc.start(now);
+          osc.stop(now + 0.025);
+        }
+
+        // Classic brass margin bell Ding!
+        playMarginBell() {
+          if (!state.mechSoundEnabled || state.mechVolume <= 0.01) return;
+          this.init();
+          if (!this.audioCtx) return;
+
+          const now = this.audioCtx.currentTime;
+          const vol = state.mechVolume * 0.35;
+
+          // Inharmonic metallic bell partials
+          const freqs = [2380, 4110, 6240];
+          const decays = [1.25, 0.65, 0.35];
+          const weights = [1.0, 0.45, 0.25];
+
+          freqs.forEach((f, idx) => {
+            const osc = this.audioCtx.createOscillator();
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(f, now);
+
+            const gain = this.audioCtx.createGain();
+            gain.gain.setValueAtTime(0.0001, now);
+            gain.gain.linearRampToValueAtTime(vol * weights[idx], now + 0.003);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + decays[idx]);
+
+            osc.connect(gain);
+            gain.connect(this.audioCtx.destination);
+            osc.start(now);
+            osc.stop(now + decays[idx] + 0.05);
+          });
+        }
+
+        // Rapid carriage slide zip + line feed roller clunk on Enter
+        playCarriageReturn(distanceCols = 25) {
+          if (!state.mechSoundEnabled || state.mechVolume <= 0.01) return;
+          this.init();
+          if (!this.audioCtx) return;
+
+          const now = this.audioCtx.currentTime;
+          const vol = state.mechVolume;
+          const steps = Math.min(14, Math.max(4, Math.floor(distanceCols / 3)));
+          const stepInterval = 0.012;
+
+          for (let i = 0; i < steps; i++) {
+            const t = now + i * stepInterval;
+            const osc = this.audioCtx.createOscillator();
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(900 + i * 35, t);
+            osc.frequency.exponentialRampToValueAtTime(320, t + 0.009);
+
+            const g = this.audioCtx.createGain();
+            g.gain.setValueAtTime(0.14 * vol, t);
+            g.gain.exponentialRampToValueAtTime(0.001, t + 0.01);
+
+            osc.connect(g);
+            g.connect(this.audioCtx.destination);
+            osc.start(t);
+            osc.stop(t + 0.012);
+          }
+
+          // Final mechanical stop thud + platen line feed ratchet
+          const endT = now + steps * stepInterval;
+          const stopOsc = this.audioCtx.createOscillator();
+          stopOsc.type = 'sine';
+          stopOsc.frequency.setValueAtTime(145, endT);
+          stopOsc.frequency.exponentialRampToValueAtTime(48, endT + 0.05);
+
+          const stopGain = this.audioCtx.createGain();
+          stopGain.gain.setValueAtTime(0.45 * vol, endT);
+          stopGain.gain.exponentialRampToValueAtTime(0.0001, endT + 0.06);
+
+          stopOsc.connect(stopGain);
+          stopGain.connect(this.audioCtx.destination);
+          stopOsc.start(endT);
+          stopOsc.stop(endT + 0.065);
+        }
+
+        // Soft paper roller friction rustle when scrolling history
+        playPaperScrollRustle() {
+          if (!state.mechSoundEnabled || state.mechVolume <= 0.01) return;
+          this.init();
+          if (!this.audioCtx) return;
+
+          const now = this.audioCtx.currentTime;
+          const noiseSrc = this.audioCtx.createBufferSource();
+          noiseSrc.buffer = this.noiseBuffer;
+
+          const filter = this.audioCtx.createBiquadFilter();
+          filter.type = 'bandpass';
+          filter.frequency.setValueAtTime(850, now);
+          filter.Q.setValueAtTime(1.5, now);
+
+          const gain = this.audioCtx.createGain();
+          gain.gain.setValueAtTime(0.08 * state.mechVolume, now);
+          gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.045);
+
+          noiseSrc.connect(filter);
+          filter.connect(gain);
+          gain.connect(this.audioCtx.destination);
+          noiseSrc.start(now, Math.random() * 2, 0.05);
+        }
+
+        // Procedural Cozy Heavy Rain & Distant Thunder Soundscape
+        toggleRain(enable) {
+          this.init();
+          if (!this.audioCtx) return;
+
+          if (enable) {
+            if (this.rainNode) return;
+            const now = this.audioCtx.currentTime;
+
+            // Continuous looping noise source sculpted into steady windowpane rain
+            const src = this.audioCtx.createBufferSource();
+            src.buffer = this.noiseBuffer;
+            src.loop = true;
+
+            const lowpass = this.audioCtx.createBiquadFilter();
+            lowpass.type = 'lowpass';
+            lowpass.frequency.setValueAtTime(1350, now);
+
+            const highpass = this.audioCtx.createBiquadFilter();
+            highpass.type = 'highpass';
+            highpass.frequency.setValueAtTime(220, now);
+
+            const gain = this.audioCtx.createGain();
+            gain.gain.setValueAtTime(0.001, now);
+            gain.gain.linearRampToValueAtTime(state.rainVolume * 0.22, now + 1.2);
+
+            src.connect(lowpass);
+            lowpass.connect(highpass);
+            highpass.connect(gain);
+            gain.connect(this.audioCtx.destination);
+            src.start(now);
+
+            this.rainNode = src;
+            this.rainGain = gain;
+
+            // Schedule occasional subtle distant thunder rumbles
+            this.scheduleThunder();
+          } else {
+            if (this.rainGain && this.audioCtx) {
+              const now = this.audioCtx.currentTime;
+              this.rainGain.gain.linearRampToValueAtTime(0.0001, now + 0.6);
+              const oldNode = this.rainNode;
+              setTimeout(() => {
+                try { if (oldNode) oldNode.stop(); } catch (e) {}
+              }, 650);
+            }
+            this.rainNode = null;
+            this.rainGain = null;
+            if (this.thunderTimer) {
+              clearTimeout(this.thunderTimer);
+              this.thunderTimer = null;
+            }
+          }
+        }
+
+        updateRainVolume(val) {
+          if (this.rainGain && this.audioCtx) {
+            this.rainGain.gain.setTargetAtTime(val * 0.22, this.audioCtx.currentTime, 0.15);
+          }
+        }
+
+        scheduleThunder() {
+          if (!state.rainEnabled) return;
+          const nextDelay = 12000 + Math.random() * 18000;
+          this.thunderTimer = setTimeout(() => {
+            if (!state.rainEnabled || !this.audioCtx) return;
+            const now = this.audioCtx.currentTime;
+            const src = this.audioCtx.createBufferSource();
+            src.buffer = this.noiseBuffer;
+
+            const lp = this.audioCtx.createBiquadFilter();
+            lp.type = 'lowpass';
+            lp.frequency.setValueAtTime(95, now);
+
+            const g = this.audioCtx.createGain();
+            const peak = state.rainVolume * 0.35;
+            g.gain.setValueAtTime(0.0001, now);
+            g.gain.linearRampToValueAtTime(peak, now + 0.8);
+            g.gain.exponentialRampToValueAtTime(0.0001, now + 3.4);
+
+            src.connect(lp);
+            lp.connect(g);
+            g.connect(this.audioCtx.destination);
+            src.start(now, 0, 3.0);
+
+            this.scheduleThunder();
+          }, nextDelay);
+        }
+      }
+
+      const audio = new TypewriterAudioEngine();
+
+      // -----------------------------------------------------------------------
+      // 3. DATA MODEL & ORGANIC INK PHYSICS
+      // -----------------------------------------------------------------------
+      function createInkCell(char, isFresh = false) {
+        return {
+          char: char,
+          overstrikes: [],
+          // Crisp dark charcoal ink density variation (0.86 to 0.98) for 100% legibility
+          opacity: +(0.86 + Math.random() * 0.12).toFixed(2),
+          // Micro vertical jitter (±0.3px) and subtle horizontal/rotational organic feel
+          dy: +((Math.random() - 0.5) * 0.6).toFixed(2),
+          dx: +((Math.random() - 0.5) * 0.25).toFixed(2),
+          rot: +((Math.random() - 0.5) * 0.45).toFixed(2),
+          fresh: isFresh
+        };
+      }
+
+      function createEmptyLine() {
+        return { cells: [] };
+      }
+
+      function stringToLine(str) {
+        const line = createEmptyLine();
+        for (let i = 0; i < str.length; i++) {
+          line.cells.push(createInkCell(str[i], false));
+        }
+        return line;
+      }
+
+      function initDefaultScene() {
+        state.lines = [stringToLine(INITIAL_REFERENCE_TEXT)];
+        state.currentLineIndex = 0;
+        state.cursorCol = INITIAL_REFERENCE_TEXT.length;
+        state.ghostChar = INITIAL_GHOST_CHAR;
+        state.paperScrollOffsetLines = 0;
+      }
+
+      function loadFromStorage() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) {
+            initDefaultScene();
+            return;
+          }
+          const parsed = JSON.parse(raw);
+          if (parsed && Array.isArray(parsed.lines) && parsed.lines.length > 0) {
+            state.lines = parsed.lines;
+            state.currentLineIndex = Math.min(parsed.currentLineIndex || 0, state.lines.length - 1);
+            state.cursorCol = parsed.cursorCol || 0;
+            state.ghostChar = parsed.ghostChar !== undefined ? parsed.ghostChar : '';
+            if (parsed.themeKey && THEMES[parsed.themeKey]) state.themeKey = parsed.themeKey;
+            if (typeof parsed.lampIntensity === 'number') state.lampIntensity = parsed.lampIntensity;
+            if (parsed.fontFamily) state.fontFamily = parsed.fontFamily;
+            if (parsed.correctionMode) state.correctionMode = parsed.correctionMode;
+          } else {
+            initDefaultScene();
+          }
+        } catch (err) {
+          initDefaultScene();
+        }
+      }
+
+      function saveToStorage() {
+        try {
+          const payload = {
+            lines: state.lines,
+            currentLineIndex: state.currentLineIndex,
+            cursorCol: state.cursorCol,
+            ghostChar: state.ghostChar,
+            themeKey: state.themeKey,
+            lampIntensity: state.lampIntensity,
+            fontFamily: state.fontFamily,
+            correctionMode: state.correctionMode
+          };
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
+        } catch (err) {
+          // Ignore storage errors
+        }
+      }
+
+      // -----------------------------------------------------------------------
+      // 4. FLAT 2D LAYOUT METRICS & SLIDING PILL CARRIAGE POSITIONING
+      // -----------------------------------------------------------------------
+      function measureLayoutMetrics() {
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+
+        // Horizontal metallic rail fixed at 76vh
+        state.railY = Math.round(vh * state.railYRatio);
+        document.documentElement.style.setProperty('--rail-Y', `${state.railY}px`);
+
+        // Measure 20px monospace character width accurately
+        const probe = document.createElement('span');
+        probe.className = 'typewriter-text';
+        probe.style.fontSize = vw < 640 ? '16px' : '20px';
+        probe.style.position = 'absolute';
+        probe.style.visibility = 'hidden';
+        probe.textContent = 'MMMMMMMMMM';
+        document.body.appendChild(probe);
+        const measuredCharW = probe.getBoundingClientRect().width / 10;
+        document.body.removeChild(probe);
+
+        state.charWidth = measuredCharW || 12.0;
+        state.lineHeight = vw < 640 ? 28 : 34;
+
+        // Horizontally centered typing column (max-width: 720px)
+        const targetColumnWidth = Math.min(720, vw - 48);
+        state.maxCols = Math.max(24, Math.floor(targetColumnWidth / state.charWidth));
+
+        const actualColumnWidth = state.maxCols * state.charWidth;
+        const centeredLeft = (vw - actualColumnWidth) / 2;
+        // Align so column 22 ("The rain was heavy, he") places the pill carriage near the center of the screen
+        const refLeft = vw * 0.485 - 22 * state.charWidth;
+        state.leftMarginPx = Math.round(Math.max(24, Math.min(centeredLeft, refLeft)));
+
+        // Resize background spotlight canvas
+        const dpr = Math.min(window.devicePixelRatio || 1, 2);
+        dom.spotlightCanvas.width = vw * dpr;
+        dom.spotlightCanvas.height = vh * dpr;
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+        updateTargetCoordinates(false);
+        renderPaperDOM();
+      }
+
+      function updateTargetCoordinates(immediate = false) {
+        const activeCol = Math.min(state.cursorCol, state.maxCols);
+        // Pill carriage slides horizontally to follow the exact X center of the active character cursor
+        state.targetCarriageX = state.leftMarginPx + activeCol * state.charWidth + state.charWidth * 0.5;
+        state.targetPaperY = state.paperScrollOffsetLines * state.lineHeight;
+
+        if (immediate) {
+          state.currentCarriageX = state.targetCarriageX;
+          state.currentPaperY = state.targetPaperY;
+        }
+
+        // Flash the 3rd pinhole LED subtly within 6 characters of the right margin
+        const remainingCols = state.maxCols - state.cursorCol;
+        if (remainingCols <= 6 && remainingCols >= 0) {
+          dom.led3.classList.add('margin-warning');
+        } else {
+          dom.led3.classList.remove('margin-warning');
+        }
+      }
+
+      // -----------------------------------------------------------------------
+      // 5. CRISP TYPEWRITER INK LAYER RENDERING (Above Spotlight Canvas)
+      // -----------------------------------------------------------------------
+      function renderPaperDOM() {
+        const vw = window.innerWidth;
+        const fontSize = vw < 640 ? '16px' : '20px';
+
+        dom.linesContainer.innerHTML = '';
+        dom.linesContainer.style.paddingLeft = `${state.leftMarginPx}px`;
+        // Position active typing baseline 14px above the rail, directly at the tip of the 13px T-striker
+        dom.linesContainer.style.bottom = '14px';
+
+        state.lines.forEach((lineObj, lineIdx) => {
+          if (lineIdx > state.currentLineIndex) return;
+
+          const rowEl = document.createElement('div');
+          rowEl.className = 'typewriter-text whitespace-pre relative';
+          rowEl.style.height = `${state.lineHeight}px`;
+          rowEl.style.lineHeight = `${state.lineHeight}px`;
+          rowEl.style.fontSize = fontSize;
+
+          lineObj.cells.forEach((cell) => {
+            if (!cell) return;
+            const span = document.createElement('span');
+            span.className = 'char-cell';
+            if (cell.fresh) {
+              span.classList.add('char-fresh');
+              cell.fresh = false;
+            }
+            span.style.width = `${state.charWidth}px`;
+            span.style.opacity = cell.opacity;
+            span.style.transform = `translate(${cell.dx}px, ${cell.dy}px) rotate(${cell.rot}deg)`;
+            span.textContent = cell.char || ' ';
+
+            if (cell.overstrikes && cell.overstrikes.length > 0) {
+              cell.overstrikes.forEach((over) => {
+                const overSpan = document.createElement('span');
+                overSpan.className = 'overstrike-layer';
+                overSpan.style.opacity = over.opacity || 0.92;
+                overSpan.style.transform = `translate(${over.dx || 0}px, ${over.dy || 0}px) rotate(${over.rot || 0}deg)`;
+                overSpan.textContent = over.char;
+                span.appendChild(overSpan);
+              });
+            }
+
+            rowEl.appendChild(span);
+          });
+
+          // Render faint half-struck character ("r" initially, or subtle cursor imprint) right above the T-striker
+          if (lineIdx === state.currentLineIndex && state.ghostChar && state.cursorCol === lineObj.cells.length) {
+            const ghostSpan = document.createElement('span');
+            ghostSpan.className = 'char-cell char-ghost-preview';
+            ghostSpan.style.width = `${state.charWidth}px`;
+            ghostSpan.textContent = state.ghostChar;
+            rowEl.appendChild(ghostSpan);
+          }
+
+          dom.linesContainer.appendChild(rowEl);
+        });
+
+        updateStatsHUD();
+      }
+
+      function updateStatsHUD() {
+        const fullText = state.lines
+          .map((l) => l.cells.map((c) => (c ? c.char : ' ')).join(''))
+          .join('\n')
+          .trim();
+
+        const wordCount = fullText ? fullText.split(/\s+/).filter(Boolean).length : 0;
+        dom.statsCounter.textContent = `${wordCount} ${wordCount === 1 ? 'word' : 'words'}`;
+      }
+
+      // -----------------------------------------------------------------------
+      // 6. BALANCED WARM SPOTLIGHT CONE (Strictly on Background Paper Layer)
+      // -----------------------------------------------------------------------
+      function renderVolumetricSpotlight() {
+        const vw = window.innerWidth;
+        const vh = window.innerHeight;
+        const theme = THEMES[state.themeKey] || THEMES.standard;
+
+        ctx.clearRect(0, 0, vw, vh);
+
+        // 1. Subtle peripheral paper vignette so outer corners feel naturally unlit
+        const edgeGrad = ctx.createRadialGradient(
+          vw * 0.5,
+          vh * 0.45,
+          vh * 0.25,
+          vw * 0.5,
+          vh * 0.45,
+          Math.max(vw, vh) * 0.78
+        );
+        edgeGrad.addColorStop(0, 'rgba(0, 0, 0, 0)');
+        edgeGrad.addColorStop(1, state.themeKey === 'dark' ? 'rgba(0, 0, 0, 0.45)' : 'rgba(22, 26, 38, 0.14)');
+        ctx.fillStyle = edgeGrad;
+        ctx.fillRect(0, 0, vw, vh);
+
+        const intensity = state.lampIntensity;
+        if (intensity <= 0.02) return;
+
+        const originX = state.currentCarriageX;
+        const originY = state.railY;
+
+        const [cr, cg, cb] = theme.coneCore;   // Soft warm ivory (#faf3e3)
+        const [mr, mg, mb] = theme.coneMid;    // Warm cream (#f2ead6)
+        const [or, og, ob] = theme.coneOuter;  // Soft edge transition (#e8e1d3)
+
+        // 2. Single Smooth ~78-Degree V-Cone Projecting Upward from (carriageX, railY)
+        // Rendered strictly above the rail on the background paper canvas (zero hotspot clipping)
+        ctx.save();
+        ctx.beginPath();
+        ctx.rect(0, 0, vw, originY);
+        ctx.clip();
+
+        const coneHeight = Math.max(vh * 0.68, 440);
+        const halfAngleRad = ((state.coneSpreadDeg / 2) * Math.PI) / 180;
+        const topHalfWidth = Math.tan(halfAngleRad) * coneHeight;
+
+        ctx.beginPath();
+        // Start from the top width of the pill carriage
+        ctx.moveTo(originX - 24, originY + 2);
+        // Smooth ~78-degree V-cone sides flaring upward
+        ctx.quadraticCurveTo(
+          originX - topHalfWidth * 0.52,
+          originY - coneHeight * 0.34,
+          originX - topHalfWidth,
+          originY - coneHeight * 0.85
+        );
+        // Rounded upper dome of the spotlight cone
+        ctx.arc(
+          originX,
+          originY - coneHeight * 0.48,
+          topHalfWidth * 0.92,
+          Math.PI,
+          0,
+          false
+        );
+        ctx.quadraticCurveTo(
+          originX + topHalfWidth * 0.52,
+          originY - coneHeight * 0.34,
+          originX + 24,
+          originY + 2
+        );
+        ctx.closePath();
+
+        // Soft natural penumbra along the V-cone edges
+        ctx.filter = 'blur(28px)';
+
+        // Single balanced radial gradient from the pill carriage upward
+        const coneGrad = ctx.createRadialGradient(
+          originX,
+          originY - 10,
+          6,
+          originX,
+          originY - coneHeight * 0.38,
+          coneHeight * 0.62
+        );
+
+        coneGrad.addColorStop(0, `rgba(${cr}, ${cg}, ${cb}, ${Math.min(0.94, intensity * 1.1)})`);
+        coneGrad.addColorStop(0.32, `rgba(${mr}, ${mg}, ${mb}, ${Math.min(0.78, intensity * 0.9)})`);
+        coneGrad.addColorStop(0.68, `rgba(${or}, ${og}, ${ob}, ${Math.min(0.38, intensity * 0.45)})`);
+        coneGrad.addColorStop(1, `rgba(${or}, ${og}, ${ob}, 0)`);
+
+        ctx.fillStyle = coneGrad;
+        ctx.fill();
+        ctx.restore();
+
+        // 3. Subtle warm glint on the metallic rail right beneath the pill carriage
+        ctx.save();
+        const railGlow = ctx.createLinearGradient(originX - 110, 0, originX + 110, 0);
+        railGlow.addColorStop(0, 'rgba(250, 243, 227, 0)');
+        railGlow.addColorStop(0.5, `rgba(250, 243, 227, ${0.42 * intensity})`);
+        railGlow.addColorStop(1, 'rgba(250, 243, 227, 0)');
+        ctx.fillStyle = railGlow;
+        ctx.fillRect(originX - 110, originY - 1, 220, 2);
+        ctx.restore();
+      }
+
+      // -----------------------------------------------------------------------
+      // 7. ANIMATION LOOP (Smooth Damped Lerp for Sliding Pill Carriage)
+      // -----------------------------------------------------------------------
+      function animateLoop() {
+        // Smooth damped interpolation (lerp) for horizontal pill carriage motion
+        const dx = state.targetCarriageX - state.currentCarriageX;
+        if (Math.abs(dx) > 0.1) {
+          state.currentCarriageX += dx * 0.25;
+        } else {
+          state.currentCarriageX = state.targetCarriageX;
+        }
+
+        // Smooth vertical paper scroll interpolation
+        const dy = state.targetPaperY - state.currentPaperY;
+        if (Math.abs(dy) > 0.1) {
+          state.currentPaperY += dy * 0.24;
+        } else {
+          state.currentPaperY = state.targetPaperY;
+        }
+
+        dom.pillCarriage.style.transform = `translate3d(${state.currentCarriageX.toFixed(2)}px, 0, 0)`;
+        dom.paperSheet.style.transform = `translate3d(0, ${state.currentPaperY.toFixed(2)}px, 0)`;
+
+        renderVolumetricSpotlight();
+
+        requestAnimationFrame(animateLoop);
+      }
+
+      // -----------------------------------------------------------------------
+      // 8. TYPEWRITER MECHANICAL ACTIONS (Strike, Backspace, Return, Wrap)
+      // -----------------------------------------------------------------------
+      function triggerPhysicalStrikeAnimation() {
+        dom.strikerPin.classList.remove('striking');
+        dom.pillBody.classList.remove('jolting');
+        dom.strikeSpark.classList.remove('active');
+
+        void dom.strikerPin.offsetWidth;
+
+        dom.strikerPin.classList.add('striking');
+        dom.pillBody.classList.add('jolting');
+        dom.strikeSpark.classList.add('active');
+      }
+
+      function closeAllPopovers() {
+        dom.popoverSettings.classList.add('hidden');
+      }
+
+      function stampCharacter(char) {
+        closeAllPopovers();
+
+        // Clear the initial faint half-struck "r" once the user begins typing
+        state.ghostChar = '';
+        state.paperScrollOffsetLines = 0;
+
+        const currentLine = state.lines[state.currentLineIndex];
+
+        while (currentLine.cells.length < state.cursorCol) {
+          currentLine.cells.push(createInkCell(' ', false));
+        }
+
+        if (state.cursorCol < currentLine.cells.length) {
+          const existingCell = currentLine.cells[state.cursorCol];
+          if (existingCell && existingCell.char !== ' ' && state.correctionMode === 'overstrike') {
+            existingCell.overstrikes = existingCell.overstrikes || [];
+            existingCell.overstrikes.push({
+              char: char,
+              opacity: +(0.88 + Math.random() * 0.1).toFixed(2),
+              dx: +((Math.random() - 0.5) * 0.35).toFixed(2),
+              dy: +((Math.random() - 0.5) * 0.35).toFixed(2),
+              rot: +((Math.random() - 0.5) * 0.5).toFixed(2)
+            });
+            existingCell.fresh = true;
+          } else {
+            currentLine.cells[state.cursorCol] = createInkCell(char, true);
+          }
+        } else {
+          currentLine.cells.push(createInkCell(char, true));
+        }
+
+        triggerPhysicalStrikeAnimation();
+        audio.playKeyStrike(char === ' ');
+
+        state.cursorCol++;
+
+        // Classic brass margin bell 6 characters before the right margin
+        if (state.maxCols - state.cursorCol === 6) {
+          audio.playMarginBell();
+        }
+
+        if (state.cursorCol >= state.maxCols) {
+          handleAutoWordWrap();
+        } else {
+          updateTargetCoordinates(false);
+          renderPaperDOM();
+          saveToStorage();
+        }
+      }
+
+      function handleAutoWordWrap() {
+        const currentLine = state.lines[state.currentLineIndex];
+        let splitIdx = -1;
+        for (let i = currentLine.cells.length - 1; i >= Math.max(0, currentLine.cells.length - 14); i--) {
+          if (currentLine.cells[i] && currentLine.cells[i].char === ' ') {
+            splitIdx = i;
+            break;
+          }
+        }
+
+        let carriedCells = [];
+        if (splitIdx !== -1 && splitIdx < currentLine.cells.length - 1) {
+          carriedCells = currentLine.cells.splice(splitIdx + 1);
+          currentLine.cells.splice(splitIdx, 1);
+        }
+
+        state.currentLineIndex++;
+        if (state.currentLineIndex >= state.lines.length) {
+          state.lines.push({ cells: carriedCells });
+        } else {
+          state.lines.splice(state.currentLineIndex, 0, { cells: carriedCells });
+        }
+
+        const prevCol = state.cursorCol;
+        state.cursorCol = carriedCells.length;
+
+        audio.playCarriageReturn(prevCol);
+        updateTargetCoordinates(false);
+        renderPaperDOM();
+        saveToStorage();
+      }
+
+      function performCarriageReturn() {
+        closeAllPopovers();
+        state.ghostChar = '';
+        state.paperScrollOffsetLines = 0;
+
+        const prevCol = state.cursorCol;
+        state.currentLineIndex++;
+
+        if (state.currentLineIndex >= state.lines.length) {
+          state.lines.push(createEmptyLine());
+        } else {
+          state.lines.splice(state.currentLineIndex, 0, createEmptyLine());
+        }
+
+        state.cursorCol = 0;
+        audio.playCarriageReturn(Math.max(8, prevCol));
+
+        updateTargetCoordinates(false);
+        renderPaperDOM();
+        saveToStorage();
+      }
+
+      function performBackspace() {
+        closeAllPopovers();
+        state.ghostChar = '';
+        state.paperScrollOffsetLines = 0;
+
+        const currentLine = state.lines[state.currentLineIndex];
+
+        if (state.cursorCol > 0) {
+          state.cursorCol--;
+          audio.playBackspaceTick();
+
+          if (state.correctionMode === 'ribbon') {
+            if (state.cursorCol === currentLine.cells.length - 1) {
+              currentLine.cells.pop();
+            } else if (currentLine.cells[state.cursorCol]) {
+              currentLine.cells[state.cursorCol] = createInkCell(' ', false);
+            }
+          }
+
+          updateTargetCoordinates(false);
+          renderPaperDOM();
+          saveToStorage();
+        } else if (state.currentLineIndex > 0 && state.correctionMode === 'ribbon') {
+          if (currentLine.cells.length === 0) {
+            state.lines.splice(state.currentLineIndex, 1);
+          }
+          state.currentLineIndex--;
+          state.cursorCol = state.lines[state.currentLineIndex].cells.length;
+          audio.playBackspaceTick();
+          updateTargetCoordinates(false);
+          renderPaperDOM();
+          saveToStorage();
+        }
+      }
+
+      // -----------------------------------------------------------------------
+      // 9. KEYBOARD, TOUCH & SCROLL EVENT LISTENERS
+      // -----------------------------------------------------------------------
+      let lastKeyHandledTimestamp = 0;
+
+      window.addEventListener('keydown', (e) => {
+        if (e.ctrlKey || e.metaKey || e.altKey) return;
+        if (e.target && e.target.tagName === 'INPUT' && e.target.type === 'range') return;
+
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          lastKeyHandledTimestamp = Date.now();
+          performCarriageReturn();
+          return;
+        }
+
+        if (e.key === 'Backspace') {
+          e.preventDefault();
+          lastKeyHandledTimestamp = Date.now();
+          performBackspace();
+          return;
+        }
+
+        if (e.key === 'Tab') {
+          e.preventDefault();
+          lastKeyHandledTimestamp = Date.now();
+          for (let i = 0; i < 4; i++) stampCharacter(' ');
+          return;
+        }
+
+        if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          scrollPaperHistory(1);
+          return;
+        }
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          scrollPaperHistory(-1);
+          return;
+        }
+        if (e.key === 'ArrowLeft') {
+          e.preventDefault();
+          if (state.cursorCol > 0) {
+            state.cursorCol--;
+            audio.playBackspaceTick();
+            updateTargetCoordinates(false);
+            renderPaperDOM();
+          }
+          return;
+        }
+        if (e.key === 'ArrowRight') {
+          e.preventDefault();
+          if (state.cursorCol < state.maxCols - 1) {
+            state.cursorCol++;
+            audio.playBackspaceTick();
+            updateTargetCoordinates(false);
+            renderPaperDOM();
+          }
+          return;
+        }
+
+        if (e.key.length === 1) {
+          e.preventDefault();
+          lastKeyHandledTimestamp = Date.now();
+          stampCharacter(e.key);
+        }
+      });
+
+      window.addEventListener('keyup', (e) => {
+        if (e.key.length === 1 || e.key === 'Backspace' || e.key === ' ') {
+          audio.playKeyRelease();
+        }
+      });
+
+      dom.hiddenInput.addEventListener('input', () => {
+        if (Date.now() - lastKeyHandledTimestamp < 60) {
+          dom.hiddenInput.value = '';
+          return;
+        }
+        const val = dom.hiddenInput.value;
+        if (val && val.length > 0) {
+          const char = val[val.length - 1];
+          if (char === '\n') {
+            performCarriageReturn();
+          } else {
+            stampCharacter(char);
+          }
+        }
+        dom.hiddenInput.value = '';
+      });
+
+      dom.stage.addEventListener('click', () => {
+        closeAllPopovers();
+        dom.hiddenInput.focus({ preventScroll: true });
+      });
+
+      function scrollPaperHistory(deltaLines) {
+        const maxScrollBack = Math.max(0, state.currentLineIndex);
+        const nextOffset = Math.max(
+          -2,
+          Math.min(maxScrollBack, state.paperScrollOffsetLines + deltaLines)
+        );
+        if (nextOffset !== state.paperScrollOffsetLines) {
+          state.paperScrollOffsetLines = nextOffset;
+          audio.playPaperScrollRustle();
+          updateTargetCoordinates(false);
+        }
+      }
+
+      window.addEventListener('wheel', (e) => {
+        if (e.target.closest('#minimal-hud')) return;
+        e.preventDefault();
+        const dir = e.deltaY < 0 ? 1 : -1;
+        scrollPaperHistory(dir * 0.65);
+      }, { passive: false });
+
+      window.addEventListener('resize', () => {
+        measureLayoutMetrics();
+      });
+
+      // -----------------------------------------------------------------------
+      // 10. TOP-RIGHT DISCREET HOVER PILL CONTROLS
+      // -----------------------------------------------------------------------
+      dom.btnSettings.addEventListener('click', (e) => {
+        e.stopPropagation();
+        dom.popoverSettings.classList.toggle('hidden');
+      });
+
+      dom.popoverSettings.addEventListener('click', (e) => e.stopPropagation());
+
+      function applyTheme(themeKey) {
+        if (!THEMES[themeKey]) themeKey = 'standard';
+        state.themeKey = themeKey;
+        const t = THEMES[themeKey];
+
+        document.documentElement.style.setProperty('--paper-base', t.paperBase);
+        document.documentElement.style.setProperty('--ink-color', t.inkColor);
+        dom.paperBackdrop.style.backgroundColor = t.paperBase;
+        document.body.classList.toggle('theme-dark', themeKey === 'dark');
+
+        document.querySelectorAll('.theme-btn').forEach((btn) => {
+          const active = btn.getAttribute('data-theme') === themeKey;
+          btn.className = active
+            ? 'theme-btn px-2.5 py-1 rounded-lg text-[11px] bg-white/15 text-white font-medium text-left flex items-center gap-1.5'
+            : 'theme-btn px-2.5 py-1 rounded-lg text-[11px] bg-white/5 hover:bg-white/10 text-slate-300 text-left flex items-center gap-1.5';
+        });
+
+        saveToStorage();
+      }
+
+      document.querySelectorAll('.theme-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          applyTheme(btn.getAttribute('data-theme'));
+        });
+      });
+
+      // Lamp Brightness Slider
+      dom.sliderIntensity.addEventListener('input', (e) => {
+        state.lampIntensity = parseFloat(e.target.value);
+        dom.valIntensity.textContent = `${Math.round(state.lampIntensity * 100)}%`;
+        saveToStorage();
+      });
+
+      // Font Selector
+      document.querySelectorAll('.font-btn').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          state.fontFamily = btn.getAttribute('data-font');
+          document.documentElement.style.setProperty('--font-typewriter', state.fontFamily);
+          document.querySelectorAll('.font-btn').forEach((b) => {
+            b.className = b === btn
+              ? 'font-btn px-2 py-1 rounded bg-white/15 text-white text-[11px]'
+              : 'font-btn px-2 py-1 rounded bg-white/5 hover:bg-white/10 text-slate-300 text-[11px]';
+          });
+          measureLayoutMetrics();
+          saveToStorage();
+        });
+      });
+
+      // Key Click Audio Toggle
+      function updateAudioUI() {
+        dom.quickAudioBtn.textContent = state.mechSoundEnabled ? 'Keys: On' : 'Keys: Off';
+        dom.quickAudioBtn.classList.toggle('text-slate-200', state.mechSoundEnabled);
+        dom.quickAudioBtn.classList.toggle('text-slate-500', !state.mechSoundEnabled);
+        dom.led2.style.opacity = state.mechSoundEnabled ? '1' : '0.25';
+      }
+
+      dom.quickAudioBtn.addEventListener('click', () => {
+        state.mechSoundEnabled = !state.mechSoundEnabled;
+        updateAudioUI();
+        showToast(state.mechSoundEnabled ? 'Mechanical key audio enabled' : 'Key audio muted');
+      });
+
+      // Rain Ambience Toggle
+      function setRainState(enabled) {
+        state.rainEnabled = enabled;
+        audio.toggleRain(enabled);
+        dom.quickRainBtn.textContent = enabled ? 'Rain: On' : 'Rain: Off';
+        dom.quickRainBtn.classList.toggle('text-sky-300', enabled);
+        dom.quickRainBtn.classList.toggle('text-slate-300', !enabled);
+      }
+
+      dom.quickRainBtn.addEventListener('click', () => {
+        setRainState(!state.rainEnabled);
+        showToast(state.rainEnabled ? 'Rain ambience active' : 'Rain ambience off');
+      });
+
+      // Backspace Mode Toggle
+      function updateCorrectionModeUI() {
+        const isRibbon = state.correctionMode === 'ribbon';
+        dom.modeRibbon.className = isRibbon
+          ? 'px-2 py-1 rounded-lg text-[11px] bg-white/15 text-white font-medium'
+          : 'px-2 py-1 rounded-lg text-[11px] bg-white/5 hover:bg-white/10 text-slate-300';
+        dom.modeOverstrike.className = !isRibbon
+          ? 'px-2 py-1 rounded-lg text-[11px] bg-white/15 text-white font-medium'
+          : 'px-2 py-1 rounded-lg text-[11px] bg-white/5 hover:bg-white/10 text-slate-300';
+      }
+
+      dom.modeRibbon.addEventListener('click', () => {
+        state.correctionMode = 'ribbon';
+        updateCorrectionModeUI();
+        saveToStorage();
+      });
+
+      dom.modeOverstrike.addEventListener('click', () => {
+        state.correctionMode = 'overstrike';
+        updateCorrectionModeUI();
+        saveToStorage();
+      });
+
+      // Toast Notification
+      let toastTimeout = null;
+      function showToast(msg) {
+        dom.toastBox.textContent = msg;
+        dom.toastBox.classList.remove('opacity-0', 'translate-y-2');
+        dom.toastBox.classList.add('opacity-100', 'translate-y-0');
+        if (toastTimeout) clearTimeout(toastTimeout);
+        toastTimeout = setTimeout(() => {
+          dom.toastBox.classList.add('opacity-0', 'translate-y-2');
+          dom.toastBox.classList.remove('opacity-100', 'translate-y-0');
+        }, 2000);
+      }
+
+      function animatePaperChange(callback) {
+        closeAllPopovers();
+        audio.playCarriageReturn(26);
+        dom.paperSheet.classList.add('paper-ejecting');
+        setTimeout(() => {
+          callback();
+          updateTargetCoordinates(false);
+          renderPaperDOM();
+          saveToStorage();
+        }, 250);
+        setTimeout(() => {
+          dom.paperSheet.classList.remove('paper-ejecting');
+        }, 560);
+      }
+
+      dom.actionResetScene.addEventListener('click', () => {
+        animatePaperChange(() => {
+          initDefaultScene();
+          applyTheme('standard');
+        });
+        showToast('Restored reference text');
+      });
+
+      dom.actionNewSheet.addEventListener('click', () => {
+        animatePaperChange(() => {
+          state.lines = [createEmptyLine()];
+          state.currentLineIndex = 0;
+          state.cursorCol = 0;
+          state.ghostChar = '';
+          state.paperScrollOffsetLines = 0;
+        });
+        showToast('Fresh sheet loaded');
+      });
+
+      function getPlainTextManuscript() {
+        return state.lines
+          .map((l) => l.cells.map((c) => (c ? c.char : ' ')).join('').replace(/\s+$/, ''))
+          .join('\n');
+      }
+
+      dom.actionExportTxt.addEventListener('click', () => {
+        closeAllPopovers();
+        const text = getPlainTextManuscript() || '';
+        const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `typewriter-${new Date().toISOString().slice(0, 10)}.txt`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        showToast('Exported .txt');
+      });
+
+      dom.actionCopyText.addEventListener('click', () => {
+        closeAllPopovers();
+        const text = getPlainTextManuscript();
+        const tempArea = document.createElement('textarea');
+        tempArea.value = text;
+        tempArea.style.position = 'fixed';
+        tempArea.style.left = '-9999px';
+        document.body.appendChild(tempArea);
+        tempArea.select();
+        try {
+          document.execCommand('copy');
+          showToast('Copied to clipboard');
+        } catch (err) {
+          showToast('Copy failed');
+        }
+        document.body.removeChild(tempArea);
+      });
+
+      // -----------------------------------------------------------------------
+      // 11. BOOTSTRAP APPLICATION ON LOAD
+      // -----------------------------------------------------------------------
+      window.onload = function () {
+        loadFromStorage();
+        applyTheme(state.themeKey);
+        document.documentElement.style.setProperty('--font-typewriter', state.fontFamily);
+        dom.sliderIntensity.value = state.lampIntensity;
+        dom.valIntensity.textContent = `${Math.round(state.lampIntensity * 100)}%`;
+        updateCorrectionModeUI();
+        updateAudioUI();
+
+        measureLayoutMetrics();
+        updateTargetCoordinates(true);
+        animateLoop();
+
+        dom.hiddenInput.focus({ preventScroll: true });
+      };
+    })();
+  </script>
+</body>
+</html>
