@@ -1,0 +1,439 @@
+:root {
+  --paper-base: #5c5852;
+  --ink-color: #161513;
+  --rail-Y: 76vh;
+  --font-typewriter: 'Courier Prime', monospace;
+}
+
+* {
+  box-sizing: border-box;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  overflow: hidden;
+  background-color: var(--paper-base);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  cursor: text;
+  touch-action: manipulation;
+}
+
+/* Pure Flat 2D Full-Screen Viewport */
+#viewport-stage {
+  width: 100vw;
+  height: 100vh;
+  height: 100dvh;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Thick Cylindrical Matte-Black / Gunmetal Rail (22px desktop, 17px mobile) */
+.metallic-rail {
+  position: absolute;
+  left: 0;
+  width: 100vw;
+  height: 22px;
+  top: calc(var(--rail-Y) - 11px);
+  z-index: 20;
+  border-top: 1px solid #111215;
+  border-bottom: 1px solid #0c0d0f;
+  background: linear-gradient(
+    180deg,
+    #111215 0%,
+    #222429 14%,
+    #3f434a 32%,
+    #35383f 46%,
+    #292c31 64%,
+    #18191d 86%,
+    #0c0d0f 100%
+  );
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.08),
+    0 6px 14px rgba(10, 10, 12, 0.45),
+    0 2px 4px rgba(0, 0, 0, 0.55);
+  pointer-events: none;
+}
+
+/* Cylindrical Left & Right Margin Clamp Collars (28px x 16px desktop, 22px x 13px mobile) */
+.margin-collar {
+  position: absolute;
+  top: calc(var(--rail-Y) - 14px);
+  width: 16px;
+  height: 28px;
+  border-radius: 4px;
+  z-index: 22;
+  background: linear-gradient(
+    180deg,
+    #141518 0%,
+    #2b2d32 28%,
+    #1e2024 62%,
+    #101114 100%
+  );
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  border-bottom: 1px solid #08090a;
+  border-left: 1px solid rgba(255, 255, 255, 0.07);
+  border-right: 1px solid rgba(0, 0, 0, 0.7);
+  box-shadow:
+    0 5px 11px rgba(8, 8, 10, 0.55),
+    -2px 0 4px rgba(0, 0, 0, 0.35),
+    2px 0 4px rgba(0, 0, 0, 0.35);
+  pointer-events: none;
+  transition: left 0.2s ease-out;
+}
+
+/* Pill Carriage Assembly Centered Vertically on the Thick Bar */
+.pill-carriage-wrapper {
+  position: absolute;
+  top: var(--rail-Y);
+  left: 0;
+  z-index: 30;
+  pointer-events: none;
+  will-change: transform;
+}
+
+/* Matte Warm-Charcoal Pill Carriage (114px x 44px desktop, 88px x 35px mobile) */
+.pill-body {
+  position: relative;
+  width: 114px;
+  height: 44px;
+  margin-left: -57px; /* Centered horizontally on active cursor X */
+  margin-top: -22px; /* Centered vertically on rail-Y */
+  border-radius: 9999px;
+  background: linear-gradient(
+    180deg,
+    #484744 0%,
+    #3a3937 50%,
+    #2d2c2a 100%
+  );
+  box-shadow:
+    inset 0 1px 1px rgba(255, 255, 255, 0.15),
+    inset 0 -2px 4px rgba(10, 10, 10, 0.55),
+    0 8px 18px rgba(8, 8, 10, 0.58),
+    0 2px 5px rgba(0, 0, 0, 0.65);
+  border: 1px solid rgba(22, 21, 20, 0.85);
+  display: flex;
+  align-items: center;
+  padding-left: 18px;
+  transition: transform 0.04s ease-out;
+}
+
+/* Cast contact shadows where the pill clasps the thick cylindrical rod */
+.pill-body::before,
+.pill-body::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  width: 7px;
+  height: 22px;
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.pill-body::before {
+  left: -6px;
+  background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.55));
+}
+
+.pill-body::after {
+  right: -6px;
+  background: linear-gradient(270deg, transparent, rgba(0, 0, 0, 0.55));
+}
+
+/* Glowing Top Amber Light Slot (22px x 3.5px desktop, 18px x 3px mobile) */
+.amber-light-slot {
+  position: absolute;
+  top: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 22px;
+  height: 3.5px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #f59e0b 0%, #ffcf70 50%, #f59e0b 100%);
+  box-shadow:
+    0 0 6px 1.5px rgba(255, 207, 112, 0.85),
+    0 -2px 10px 2px rgba(245, 158, 11, 0.65),
+    inset 0 0.5px 1px rgba(255, 255, 255, 0.85);
+  transition: opacity 0.15s ease, box-shadow 0.15s ease;
+}
+
+/* Three Recessed Left Indicator LEDs */
+.led-cluster {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.micro-led {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  transition: all 0.12s ease;
+}
+
+/* 1. Left: Bright glowing green ready LED (#52e852) with thin light-silver circular bezel ring */
+.led-green {
+  background-color: #52e852;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  box-shadow:
+    0 0 0 1px rgba(20, 20, 20, 0.65),
+    0 0 6px 1.5px rgba(82, 232, 82, 0.72),
+    inset 0 1px 1.5px rgba(255, 255, 255, 0.7);
+}
+
+/* 2. Middle: Warm glowing amber/orange active LED (#f59e0b) that pulses brighter on keystrokes */
+.led-amber {
+  background-color: #f59e0b;
+  box-shadow:
+    0 0 0 1px rgba(18, 17, 16, 0.7),
+    0 0 5px 1px rgba(245, 158, 11, 0.7),
+    inset 0 1px 1px rgba(255, 232, 175, 0.65);
+}
+
+.led-amber.pulsing {
+  background-color: #fbbf24;
+  transform: scale(1.16);
+  box-shadow:
+    0 0 0 1px rgba(18, 17, 16, 0.7),
+    0 0 9px 2.5px rgba(251, 191, 36, 0.95),
+    inset 0 1px 1.5px rgba(255, 255, 255, 0.85);
+}
+
+/* 3. Right: Recessed dark margin/bell indicator (#231f1d) */
+.led-muted {
+  background-color: #231f1d;
+  border: 1px solid rgba(15, 14, 13, 0.8);
+  box-shadow:
+    inset 0 1px 2px rgba(0, 0, 0, 0.85),
+    0 0.5px 0 rgba(255, 255, 255, 0.08);
+}
+
+.led-muted.margin-warning {
+  background-color: #f97316;
+  border-color: rgba(254, 215, 170, 0.45);
+  box-shadow:
+    0 0 7px 2px rgba(249, 115, 22, 0.9),
+    0 0 12px 3px rgba(239, 68, 68, 0.65);
+}
+
+/* Physical T-Striker Hammer Extending Upward from Behind Top Center of Pill Carriage */
+.striker-assembly {
+  position: absolute;
+  left: 50%;
+  top: -50px; /* 28px visible above the -22px pill top */
+  transform: translateX(-50%);
+  width: 24px;
+  height: 32px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  z-index: -1;
+  will-change: transform;
+}
+
+/* Thick Horizontal Cylindrical Hammer Head (22px x 6.5px desktop) */
+.striker-head {
+  width: 22px;
+  height: 6.5px;
+  border-radius: 1.5px;
+  background: linear-gradient(
+    180deg,
+    #18191c 0%,
+    #43474f 36%,
+    #2b2e34 72%,
+    #141518 100%
+  );
+  border-left: 1px solid #0e0f11;
+  border-right: 1px solid #0e0f11;
+  box-shadow:
+    0 3px 6px rgba(10, 10, 12, 0.45),
+    inset 0 0.5px 0 rgba(255, 255, 255, 0.22);
+}
+
+/* Dark Gunmetal Vertical Stem (3.5px wide desktop) */
+.striker-shaft {
+  width: 3.5px;
+  height: 25.5px;
+  background: linear-gradient(90deg, #16171a 0%, #373b42 45%, #141518 100%);
+  box-shadow: 2px 2px 5px rgba(10, 10, 12, 0.35);
+}
+
+/* Upward -6px snap in 50ms and rebound in 110ms on every keystroke */
+.striker-assembly.striking {
+  animation: hammerStrike 0.16s cubic-bezier(0.18, 0.88, 0.3, 1) forwards;
+}
+
+.pill-body.jolting {
+  animation: pillJolt 0.08s ease-out forwards;
+}
+
+@keyframes hammerStrike {
+  0% { transform: translateX(-50%) translateY(0); }
+  31.25% { transform: translateX(-50%) translateY(-6px); } /* 50ms upward snap */
+  100% { transform: translateX(-50%) translateY(0); }    /* 110ms rebound */
+}
+
+@keyframes pillJolt {
+  0% { transform: translateY(0); }
+  45% { transform: translateY(1px); }
+  100% { transform: translateY(0); }
+}
+
+/* Subtle impact ring at hammer tip */
+.strike-spark {
+  position: absolute;
+  top: -55px;
+  left: 50%;
+  width: 14px;
+  height: 5px;
+  margin-left: -7px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(22, 21, 19, 0.28) 0%, transparent 75%);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.strike-spark.active {
+  animation: sparkPulse 0.14s ease-out forwards;
+}
+
+@keyframes sparkPulse {
+  0% { opacity: 0.85; transform: scale(0.65); }
+  100% { opacity: 0; transform: scale(1.85); }
+}
+
+/* Crisp Carbon-Black Typewriter Ink Layer (Rendered strictly ABOVE the light layer) */
+.typewriter-text {
+  font-family: var(--font-typewriter);
+  color: var(--ink-color);
+  font-feature-settings: "kern" 0, "liga" 0;
+  text-shadow: 0 0 0.4px rgba(22, 21, 19, 0.28);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Individual stamped character cell */
+.char-cell {
+  display: inline-block;
+  position: relative;
+  white-space: pre;
+  transform-origin: bottom center;
+}
+
+/* Freshly struck ink impression animation */
+.char-fresh {
+  animation: freshInkStamp 0.14s ease-out forwards;
+}
+
+@keyframes freshInkStamp {
+  0% {
+    transform: scale(1.03) translateY(0.4px);
+  }
+  100% {
+    transform: scale(1) translateY(0);
+  }
+}
+
+/* Overstrike character layered on top in Overstrike Mode */
+.overstrike-layer {
+  position: absolute;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+  color: var(--ink-color);
+}
+
+/* Discreet HUD Glassmorphism */
+.hud-glass {
+  background: rgba(24, 23, 22, 0.84);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.32);
+}
+
+/* Custom Range Sliders */
+input[type="range"].tactile-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  background: rgba(255, 255, 255, 0.18);
+  border-radius: 999px;
+  outline: none;
+}
+input[type="range"].tactile-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 13px;
+  height: 13px;
+  border-radius: 50%;
+  background: #f59e0b;
+  cursor: pointer;
+  border: 2px solid #fffdf9;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.4);
+}
+
+/* Paper Sheet Eject / Clear Page Animation */
+.paper-ejecting {
+  animation: paperEject 0.55s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes paperEject {
+  0% { transform: translateY(0); opacity: 1; }
+  45% { transform: translateY(-110px); opacity: 0; }
+  46% { transform: translateY(60px); opacity: 0; }
+  100% { transform: translateY(0); opacity: 1; }
+}
+
+/* Mobile & Touch Responsive Adjustments */
+@media (max-width: 640px) {
+  .metallic-rail {
+    height: 17px;
+    top: calc(var(--rail-Y) - 8.5px);
+  }
+  .margin-collar {
+    width: 13px;
+    height: 22px;
+    top: calc(var(--rail-Y) - 11px);
+  }
+  .pill-body {
+    width: 88px;
+    height: 35px;
+    margin-left: -44px;
+    margin-top: -17.5px;
+    padding-left: 13px;
+  }
+  .amber-light-slot {
+    width: 18px;
+    height: 3px;
+  }
+  .led-cluster {
+    gap: 5.5px;
+  }
+  .micro-led {
+    width: 5.5px;
+    height: 5.5px;
+  }
+  .striker-assembly {
+    top: -40px;
+    width: 20px;
+    height: 26px;
+  }
+  .striker-head {
+    width: 18px;
+    height: 5.5px;
+  }
+  .striker-shaft {
+    width: 3px;
+    height: 20.5px;
+  }
+  .strike-spark {
+    top: -44px;
+  }
+}
