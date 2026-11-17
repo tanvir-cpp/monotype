@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
@@ -9,32 +10,28 @@
   <!-- Authentic Typewriter & UI Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@300;400;500;600&family=Special+Elite&display=swap" rel="stylesheet">
+  <link
+    href="https://fonts.googleapis.com/css2?family=Courier+Prime:ital,wght@0,400;0,700;1,400&family=IBM+Plex+Mono:wght@400;500&family=Inter:wght@300;400;500;600&family=Special+Elite&display=swap"
+    rel="stylesheet">
 
   <!-- Modular Stylesheet -->
-  <link rel="stylesheet" href="css/style.css" />
+  <link rel="stylesheet" href="css/style
 
   <!-- Modular Scripts -->
-  <script defer src="js/config.js"></script>
+  <script defer src=" js/config.js">
+  </script>
   <script defer src="js/audio.js"></script>
   <script defer src="js/renderer.js"></script>
   <script defer src="js/typewriter.js"></script>
   <script defer src="js/app.js"></script>
 </head>
+
 <body class="select-none">
 
   <!-- Hidden mobile/IME input positioned near rail at 16px font-size to prevent iOS zoom/scroll jump -->
-  <textarea
-    id="hidden-typewriter-input"
-    autocomplete="off"
-    autocorrect="off"
-    autocapitalize="off"
-    spellcheck="false"
-    inputmode="text"
-    aria-label="Typewriter Input"
-    style="top: var(--rail-Y); font-size: 16px;"
-    class="fixed left-1/2 -translate-x-1/2 opacity-0 w-8 h-8 pointer-events-none z-0"
-  ></textarea>
+  <textarea id="hidden-typewriter-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+    inputmode="text" aria-label="Typewriter Input" style="top: var(--rail-Y); font-size: 16px;"
+    class="fixed left-1/2 -translate-x-1/2 opacity-0 w-8 h-8 pointer-events-none z-0"></textarea>
 
   <!-- Pure Flat 2D Viewport Stage -->
   <div id="viewport-stage">
@@ -46,26 +43,18 @@
     <canvas id="spotlight-canvas" class="absolute inset-0 w-full h-full pointer-events-none z-10"></canvas>
 
     <!-- LAYER 3 (z-25): Crisp High-Contrast Carbon-Black Ink Layer (Clipped cleanly above the rail) -->
-    <div
-      id="paper-clip-region"
-      class="absolute inset-x-0 top-0 overflow-hidden pointer-events-none"
-      style="height: var(--rail-Y); z-index: 25;"
-    >
-      <div
-        id="paper-sheet"
-        class="w-full h-full relative"
-      >
+    <div id="paper-clip-region" class="absolute inset-x-0 top-0 overflow-hidden pointer-events-none"
+      style="height: var(--rail-Y); z-index: 25;">
+      <div id="paper-sheet" class="w-full h-full relative">
         <!-- Stamped carbon-black ink lines sit cleanly above the T-striker hammer -->
         <div id="lines-container" class="absolute left-0 right-0 bottom-0"></div>
       </div>
     </div>
 
     <!-- LAYER 4 (z-25): Lower Paper Platen Shadow Below the Thick Bar -->
-    <div
-      id="below-rail-paper"
-      class="absolute inset-x-0 bottom-0 pointer-events-none"
-      style="top: var(--rail-Y); z-index: 25; background: linear-gradient(180deg, rgba(10, 10, 12, 0.28) 0px, rgba(10, 10, 12, 0.08) 22px, rgba(8, 8, 10, 0.14) 100%);"
-    ></div>
+    <div id="below-rail-paper" class="absolute inset-x-0 bottom-0 pointer-events-none"
+      style="top: var(--rail-Y); z-index: 25; background: linear-gradient(180deg, rgba(10, 10, 12, 0.28) 0px, rgba(10, 10, 12, 0.08) 22px, rgba(8, 8, 10, 0.14) 100%);">
+    </div>
 
     <!-- LAYER 5 (z-20 / z-22): Thick Cylindrical Black Metal Bar & Left/Right Margin Clamp Collars -->
     <div class="metallic-rail"></div>
@@ -94,11 +83,8 @@
     </div>
 
     <!-- Subtle Auto-Fading Touch Prompt on Mobile / Touch Devices -->
-    <div
-      id="touch-prompt"
-      style="top: calc(var(--rail-Y) + 32px);"
-      class="hidden fixed left-1/2 -translate-x-1/2 z-40 px-3.5 py-1 rounded-full hud-glass text-slate-200 text-xs tracking-wide pointer-events-none transition-opacity duration-500"
-    >
+    <div id="touch-prompt" style="top: calc(var(--rail-Y) + 32px);"
+      class="hidden fixed left-1/2 -translate-x-1/2 z-40 px-3.5 py-1 rounded-full hud-glass text-slate-200 text-xs tracking-wide pointer-events-none transition-opacity duration-500">
       Tap anywhere to type
     </div>
 
@@ -107,19 +93,15 @@
   <!-- ========================================================================= -->
   <!-- TOUCH-FRIENDLY TOP-RIGHT HOVER PILL (0.25 desktop, 0.65 touch, 1.0 hover) -->
   <!-- ========================================================================= -->
-  <div
-    id="minimal-hud"
+  <div id="minimal-hud"
     class="fixed top-3 right-3 sm:top-4 sm:right-5 z-50 max-w-[calc(100vw-24px)] transition-opacity duration-300 opacity-25 hover:opacity-100 focus-within:opacity-100"
-    style="cursor: default;"
-  >
-    <div class="flex flex-wrap items-center justify-end gap-0.5 sm:gap-1 px-2 py-1 rounded-full hud-glass text-slate-200 text-[11px]">
+    style="cursor: default;">
+    <div
+      class="flex flex-wrap items-center justify-end gap-0.5 sm:gap-1 px-2 py-1 rounded-full hud-glass text-slate-200 text-[11px]">
       <!-- Mobile Soft Keyboard Toggle Button -->
-      <button
-        id="quick-kbd-btn"
-        type="button"
+      <button id="quick-kbd-btn" type="button"
         class="hidden items-center justify-center min-w-[40px] min-h-[36px] sm:min-h-[32px] px-2.5 rounded-full hover:bg-white/10 active:bg-white/20 transition text-amber-200"
-        title="Toggle On-Screen Keyboard"
-      >
+        title="Toggle On-Screen Keyboard">
         <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
           <rect x="2" y="5" width="20" height="14" rx="2" ry="2"></rect>
           <path d="M6 9h.01M10 9h.01M14 9h.01M18 9h.01M8 13h.01M12 13h.01M16 13h.01M7 16h10"></path>
@@ -127,14 +109,12 @@
       </button>
 
       <!-- Lamp Brightness & Settings Popover Button -->
-      <button
-        id="btn-settings"
-        type="button"
+      <button id="btn-settings" type="button"
         class="flex items-center justify-center gap-1 min-w-[40px] min-h-[36px] sm:min-h-[32px] px-2.5 rounded-full hover:bg-white/10 active:bg-white/20 transition text-amber-300"
-        title="Lamp Brightness & Typewriter Settings"
-      >
+        title="Lamp Brightness & Typewriter Settings">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
         </svg>
         <span>Lamp</span>
       </button>
@@ -142,57 +122,43 @@
       <span class="text-white/15">|</span>
 
       <!-- Key Click Audio Quick Toggle -->
-      <button
-        id="quick-audio-btn"
-        type="button"
+      <button id="quick-audio-btn" type="button"
         class="flex items-center justify-center min-w-[40px] min-h-[36px] sm:min-h-[32px] px-2.5 rounded-full hover:bg-white/10 active:bg-white/20 transition text-slate-200"
-        title="Toggle Mechanical Key Click Audio"
-      >
+        title="Toggle Mechanical Key Click Audio">
         Keys: On
       </button>
 
       <span class="text-white/15">|</span>
 
       <!-- Rain Ambience Quick Toggle -->
-      <button
-        id="quick-rain-btn"
-        type="button"
+      <button id="quick-rain-btn" type="button"
         class="flex items-center justify-center min-w-[40px] min-h-[36px] sm:min-h-[32px] px-2.5 rounded-full hover:bg-white/10 active:bg-white/20 transition text-slate-300"
-        title="Toggle Soft Rain Ambience"
-      >
+        title="Toggle Soft Rain Ambience">
         Rain: Off
       </button>
 
       <span class="text-white/15 hidden sm:inline">|</span>
 
       <!-- Clear Page -->
-      <button
-        id="action-new-sheet"
-        type="button"
+      <button id="action-new-sheet" type="button"
         class="flex items-center justify-center min-w-[40px] min-h-[36px] sm:min-h-[32px] px-2.5 rounded-full hover:bg-white/10 active:bg-white/20 transition text-slate-300 hover:text-white"
-        title="Clear Page"
-      >
+        title="Clear Page">
         Clear
       </button>
 
       <span class="text-white/15">|</span>
 
       <!-- Export (.txt) -->
-      <button
-        id="action-export-txt"
-        type="button"
+      <button id="action-export-txt" type="button"
         class="flex items-center justify-center min-w-[40px] min-h-[36px] sm:min-h-[32px] px-2.5 rounded-full hover:bg-white/10 active:bg-white/20 transition text-emerald-300"
-        title="Export Manuscript (.txt)"
-      >
+        title="Export Manuscript (.txt)">
         .txt
       </button>
     </div>
 
     <!-- Discreet Settings Popover (Lamp Brightness 30%-120%, Paper Mode, Typeface, Overstrike) -->
-    <div
-      id="popover-settings"
-      class="hidden absolute right-0 mt-2 w-64 max-w-[calc(100vw-24px)] p-3.5 rounded-2xl hud-glass text-slate-200 shadow-2xl space-y-3"
-    >
+    <div id="popover-settings"
+      class="hidden absolute right-0 mt-2 w-64 max-w-[calc(100vw-24px)] p-3.5 rounded-2xl hud-glass text-slate-200 shadow-2xl space-y-3">
       <div class="flex items-center justify-between border-b border-white/10 pb-1.5">
         <span class="font-medium text-[11px] uppercase tracking-wider text-slate-300">Lamp & Mechanics</span>
         <span id="stats-counter" class="text-[10px] text-slate-400 font-mono">5 words</span>
@@ -204,17 +170,20 @@
           <span class="text-slate-300">Lamp Brightness</span>
           <span id="val-intensity" class="text-amber-300 font-mono">85%</span>
         </div>
-        <input id="slider-intensity" type="range" min="0.25" max="1.20" step="0.05" value="0.85" class="tactile-slider" />
+        <input id="slider-intensity" type="range" min="0.25" max="1.20" step="0.05" value="0.85"
+          class="tactile-slider" />
       </div>
 
       <!-- Paper Surface Mode (Stone Taupe #5c5852 vs Dim Room #2e2c29) -->
       <div>
         <label class="block text-[10px] uppercase tracking-wider text-slate-400 mb-1">Paper Surface</label>
         <div class="grid grid-cols-2 gap-1.5">
-          <button data-theme="standard" class="theme-btn min-h-[36px] px-2.5 py-1 rounded-lg text-[11px] bg-white/15 text-white font-medium text-left flex items-center gap-1.5">
+          <button data-theme="standard"
+            class="theme-btn min-h-[36px] px-2.5 py-1 rounded-lg text-[11px] bg-white/15 text-white font-medium text-left flex items-center gap-1.5">
             <span class="w-2.5 h-2.5 rounded-full bg-[#5c5852] border border-white/40"></span> Fibrous Taupe
           </button>
-          <button data-theme="dark" class="theme-btn min-h-[36px] px-2.5 py-1 rounded-lg text-[11px] bg-white/5 hover:bg-white/10 text-slate-300 text-left flex items-center gap-1.5">
+          <button data-theme="dark"
+            class="theme-btn min-h-[36px] px-2.5 py-1 rounded-lg text-[11px] bg-white/5 hover:bg-white/10 text-slate-300 text-left flex items-center gap-1.5">
             <span class="w-2.5 h-2.5 rounded-full bg-[#2b2926] border border-white/40"></span> Dim Study
           </button>
         </div>
@@ -224,9 +193,14 @@
       <div>
         <label class="block text-[10px] uppercase tracking-wider text-slate-400 mb-1">Typeface</label>
         <div class="grid grid-cols-3 gap-1">
-          <button data-font="'Courier Prime', monospace" class="font-btn min-h-[36px] px-2 py-1 rounded bg-white/15 text-white text-[11px] font-mono">Courier</button>
-          <button data-font="'Special Elite', monospace" class="font-btn min-h-[36px] px-2 py-1 rounded bg-white/5 hover:bg-white/10 text-slate-300 text-[11px]" style="font-family: 'Special Elite', monospace;">Elite</button>
-          <button data-font="'IBM Plex Mono', monospace" class="font-btn min-h-[36px] px-2 py-1 rounded bg-white/5 hover:bg-white/10 text-slate-300 text-[11px]" style="font-family: 'IBM Plex Mono', monospace;">Plex</button>
+          <button data-font="'Courier Prime', monospace"
+            class="font-btn min-h-[36px] px-2 py-1 rounded bg-white/15 text-white text-[11px] font-mono">Courier</button>
+          <button data-font="'Special Elite', monospace"
+            class="font-btn min-h-[36px] px-2 py-1 rounded bg-white/5 hover:bg-white/10 text-slate-300 text-[11px]"
+            style="font-family: 'Special Elite', monospace;">Elite</button>
+          <button data-font="'IBM Plex Mono', monospace"
+            class="font-btn min-h-[36px] px-2 py-1 rounded bg-white/5 hover:bg-white/10 text-slate-300 text-[11px]"
+            style="font-family: 'IBM Plex Mono', monospace;">Plex</button>
         </div>
       </div>
 
@@ -234,10 +208,12 @@
       <div>
         <label class="block text-[10px] uppercase tracking-wider text-slate-400 mb-1">Backspace Action</label>
         <div class="grid grid-cols-2 gap-1.5">
-          <button id="mode-ribbon" type="button" class="min-h-[36px] px-2 py-1 rounded-lg text-[11px] bg-white/15 text-white font-medium">
+          <button id="mode-ribbon" type="button"
+            class="min-h-[36px] px-2 py-1 rounded-lg text-[11px] bg-white/15 text-white font-medium">
             Lift-Off
           </button>
-          <button id="mode-overstrike" type="button" class="min-h-[36px] px-2 py-1 rounded-lg text-[11px] bg-white/5 hover:bg-white/10 text-slate-300">
+          <button id="mode-overstrike" type="button"
+            class="min-h-[36px] px-2 py-1 rounded-lg text-[11px] bg-white/5 hover:bg-white/10 text-slate-300">
             Overstrike
           </button>
         </div>
@@ -245,18 +221,10 @@
 
       <!-- Restore Initial Reference Scene -->
       <div class="pt-1 border-t border-white/10 flex justify-between items-center">
-        <button
-          id="action-reset-scene"
-          type="button"
-          class="text-[11px] text-amber-300 hover:underline"
-        >
+        <button id="action-reset-scene" type="button" class="text-[11px] text-amber-300 hover:underline">
           Restore Reference Text
         </button>
-        <button
-          id="action-copy-text"
-          type="button"
-          class="text-[11px] text-slate-300 hover:text-white"
-        >
+        <button id="action-copy-text" type="button" class="text-[11px] text-slate-300 hover:text-white">
           Copy Text
         </button>
       </div>
@@ -264,12 +232,11 @@
   </div>
 
   <!-- Subtle Toast Notification Box -->
-  <div
-    id="toast-box"
-    class="fixed bottom-4 right-5 z-50 px-3.5 py-1.5 rounded-full hud-glass text-[11px] text-amber-200 pointer-events-none opacity-0 translate-y-2 transition-all duration-300"
-  >
+  <div id="toast-box"
+    class="fixed bottom-4 right-5 z-50 px-3.5 py-1.5 rounded-full hud-glass text-[11px] text-amber-200 pointer-events-none opacity-0 translate-y-2 transition-all duration-300">
     Saved
   </div>
 
 </body>
+
 </html>

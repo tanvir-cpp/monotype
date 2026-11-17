@@ -444,3 +444,4 @@ window.Lumen = window.Lumen || {};
   Lumen.animatePaperChange = animatePaperChange;
   Lumen.getPlainTextManuscript = getPlainTextManuscript;
 })(window.Lumen);
+

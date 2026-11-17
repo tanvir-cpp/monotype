@@ -536,3 +536,4 @@ window.Lumen = window.Lumen || {};
   Lumen.updateCorrectionModeUI = updateCorrectionModeUI;
   Lumen.init = init;
 })(window.Lumen);
+
