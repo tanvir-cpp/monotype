@@ -13,8 +13,8 @@
 
   <style>
     :root {
-      --paper-base: #b8bcc6;
-      --ink-color: #1f2229;
+      --paper-base: #5c5852;
+      --ink-color: #161513;
       --rail-Y: 76vh;
       --font-typewriter: 'Courier Prime', monospace;
     }
@@ -30,160 +30,219 @@
       padding: 0;
       width: 100vw;
       height: 100vh;
+      height: 100dvh;
       overflow: hidden;
       background-color: var(--paper-base);
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
       cursor: text;
-    }
-
-    /* Ultra-subtle matte paper grain overlay */
-    .paper-grain {
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 240 240' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.038'/%3E%3C/svg%3E");
+      touch-action: manipulation;
     }
 
     /* Pure Flat 2D Full-Screen Viewport */
     #viewport-stage {
       width: 100vw;
       height: 100vh;
+      height: 100dvh;
       position: relative;
       overflow: hidden;
     }
 
-    /* Full-width Horizontal Metallic Rail at 76vh */
+    /* Thick Cylindrical Matte-Black / Gunmetal Rail (22px desktop, 17px mobile) */
     .metallic-rail {
       position: absolute;
       left: 0;
       width: 100vw;
-      height: 3.5px;
-      top: var(--rail-Y);
-      z-index: 30;
+      height: 22px;
+      top: calc(var(--rail-Y) - 11px);
+      z-index: 20;
+      border-top: 1px solid #111215;
+      border-bottom: 1px solid #0c0d0f;
       background: linear-gradient(
         180deg,
-        #8c92a0 0%,
-        #2c303a 35%,
-        #1a1d24 80%,
-        #4e5361 100%
+        #111215 0%,
+        #222429 14%,
+        #3f434a 32%,
+        #35383f 46%,
+        #292c31 64%,
+        #18191d 86%,
+        #0c0d0f 100%
       );
       box-shadow:
-        0 -1px 0px rgba(255, 255, 255, 0.35),
-        0 3px 6px rgba(15, 18, 26, 0.34),
-        0 6px 14px rgba(15, 18, 26, 0.16);
+        inset 0 1px 0 rgba(255, 255, 255, 0.08),
+        0 6px 14px rgba(10, 10, 12, 0.45),
+        0 2px 4px rgba(0, 0, 0, 0.55);
       pointer-events: none;
     }
 
-    /* Subtle groove line just above the rail */
-    .rail-groove {
+    /* Cylindrical Left & Right Margin Clamp Collars (28px x 16px desktop, 22px x 13px mobile) */
+    .margin-collar {
       position: absolute;
-      left: 0;
-      width: 100vw;
-      height: 1px;
-      top: calc(var(--rail-Y) - 1px);
-      background: rgba(20, 23, 31, 0.25);
-      z-index: 29;
+      top: calc(var(--rail-Y) - 14px);
+      width: 16px;
+      height: 28px;
+      border-radius: 4px;
+      z-index: 22;
+      background: linear-gradient(
+        180deg,
+        #141518 0%,
+        #2b2d32 28%,
+        #1e2024 62%,
+        #101114 100%
+      );
+      border-top: 1px solid rgba(255, 255, 255, 0.12);
+      border-bottom: 1px solid #08090a;
+      border-left: 1px solid rgba(255, 255, 255, 0.07);
+      border-right: 1px solid rgba(0, 0, 0, 0.7);
+      box-shadow:
+        0 5px 11px rgba(8, 8, 10, 0.55),
+        -2px 0 4px rgba(0, 0, 0, 0.35),
+        2px 0 4px rgba(0, 0, 0, 0.35);
       pointer-events: none;
+      transition: left 0.2s ease-out;
     }
 
-    /* Pill Carriage Assembly */
+    /* Pill Carriage Assembly Centered Vertically on the Thick Bar */
     .pill-carriage-wrapper {
       position: absolute;
       top: var(--rail-Y);
       left: 0;
-      z-index: 40;
+      z-index: 30;
       pointer-events: none;
       will-change: transform;
     }
 
-    /* Matte Ceramic Off-White/Silver Capsule (64px x 22px) */
+    /* Matte Warm-Charcoal Pill Carriage (114px x 44px desktop, 88px x 35px mobile) */
     .pill-body {
       position: relative;
-      width: 64px;
-      height: 22px;
-      margin-left: -32px; /* Centered on active cursor X */
-      margin-top: -9.25px; /* Sitting directly on the 3.5px rail */
-      border-radius: 999px;
+      width: 114px;
+      height: 44px;
+      margin-left: -57px; /* Centered horizontally on active cursor X */
+      margin-top: -22px; /* Centered vertically on rail-Y */
+      border-radius: 9999px;
       background: linear-gradient(
-        170deg,
-        #f2f3f7 0%,
-        #e1e4ec 48%,
-        #c8cdd8 88%,
-        #b6bcc9 100%
+        180deg,
+        #484744 0%,
+        #3a3937 50%,
+        #2d2c2a 100%
       );
       box-shadow:
-        inset 0 1.5px 2px rgba(255, 255, 255, 0.95),
-        inset 0 -2px 3px rgba(70, 76, 92, 0.32),
-        0 4px 9px rgba(16, 20, 30, 0.34),
-        0 1.5px 3px rgba(16, 20, 30, 0.24);
-      border: 0.5px solid rgba(145, 152, 168, 0.65);
+        inset 0 1px 1px rgba(255, 255, 255, 0.15),
+        inset 0 -2px 4px rgba(10, 10, 10, 0.55),
+        0 8px 18px rgba(8, 8, 10, 0.58),
+        0 2px 5px rgba(0, 0, 0, 0.65);
+      border: 1px solid rgba(22, 21, 20, 0.85);
       display: flex;
       align-items: center;
-      padding-left: 11px;
+      padding-left: 18px;
       transition: transform 0.04s ease-out;
     }
 
-    body.theme-dark .pill-body {
-      background: linear-gradient(
-        170deg,
-        #dfe2ea 0%,
-        #c2c6d2 50%,
-        #979ca9 100%
-      );
-      box-shadow:
-        inset 0 1.5px 2px rgba(255, 250, 240, 0.85),
-        inset 0 -2px 3px rgba(25, 28, 38, 0.5),
-        0 5px 12px rgba(0, 0, 0, 0.65);
+    /* Cast contact shadows where the pill clasps the thick cylindrical rod */
+    .pill-body::before,
+    .pill-body::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      width: 7px;
+      height: 22px;
+      transform: translateY(-50%);
+      pointer-events: none;
     }
 
-    /* 3 Micro-LED Dots on the Left Side of the Pill */
+    .pill-body::before {
+      left: -6px;
+      background: linear-gradient(90deg, transparent, rgba(0, 0, 0, 0.55));
+    }
+
+    .pill-body::after {
+      right: -6px;
+      background: linear-gradient(270deg, transparent, rgba(0, 0, 0, 0.55));
+    }
+
+    /* Glowing Top Amber Light Slot (22px x 3.5px desktop, 18px x 3px mobile) */
+    .amber-light-slot {
+      position: absolute;
+      top: 2px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 22px;
+      height: 3.5px;
+      border-radius: 999px;
+      background: linear-gradient(90deg, #f59e0b 0%, #ffcf70 50%, #f59e0b 100%);
+      box-shadow:
+        0 0 6px 1.5px rgba(255, 207, 112, 0.85),
+        0 -2px 10px 2px rgba(245, 158, 11, 0.65),
+        inset 0 0.5px 1px rgba(255, 255, 255, 0.85);
+      transition: opacity 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    /* Three Recessed Left Indicator LEDs */
     .led-cluster {
       display: flex;
       align-items: center;
-      gap: 3.5px;
+      gap: 7px;
     }
 
     .micro-led {
-      width: 3.5px;
-      height: 3.5px;
+      width: 7px;
+      height: 7px;
       border-radius: 50%;
-      transition: all 0.15s ease;
+      transition: all 0.12s ease;
     }
 
-    /* 1. Warm glowing amber LED (#f59e0b) */
+    /* 1. Left: Bright glowing green ready LED (#52e852) with thin light-silver circular bezel ring */
+    .led-green {
+      background-color: #52e852;
+      border: 1px solid rgba(255, 255, 255, 0.45);
+      box-shadow:
+        0 0 0 1px rgba(20, 20, 20, 0.65),
+        0 0 6px 1.5px rgba(82, 232, 82, 0.72),
+        inset 0 1px 1.5px rgba(255, 255, 255, 0.7);
+    }
+
+    /* 2. Middle: Warm glowing amber/orange active LED (#f59e0b) that pulses brighter on keystrokes */
     .led-amber {
       background-color: #f59e0b;
       box-shadow:
-        0 0 4px 1px rgba(245, 158, 11, 0.85),
-        0 0 7px 2px rgba(245, 158, 11, 0.4);
+        0 0 0 1px rgba(18, 17, 16, 0.7),
+        0 0 5px 1px rgba(245, 158, 11, 0.7),
+        inset 0 1px 1px rgba(255, 232, 175, 0.65);
     }
 
-    /* 2. Soft warm white LED (#ffffff) */
-    .led-white {
-      background-color: #ffffff;
+    .led-amber.pulsing {
+      background-color: #fbbf24;
+      transform: scale(1.16);
       box-shadow:
-        0 0 4px 1px rgba(255, 252, 235, 0.9),
-        0 0 6px 1.5px rgba(255, 244, 214, 0.4);
+        0 0 0 1px rgba(18, 17, 16, 0.7),
+        0 0 9px 2.5px rgba(251, 191, 36, 0.95),
+        inset 0 1px 1.5px rgba(255, 255, 255, 0.85);
     }
 
-    /* 3. Tiny dark slate pinhole LED (#374151, flashes near right margin) */
+    /* 3. Right: Recessed dark margin/bell indicator (#231f1d) */
     .led-muted {
-      background-color: #374151;
-      box-shadow: inset 0 0.5px 1px rgba(0, 0, 0, 0.6);
+      background-color: #231f1d;
+      border: 1px solid rgba(15, 14, 13, 0.8);
+      box-shadow:
+        inset 0 1px 2px rgba(0, 0, 0, 0.85),
+        0 0.5px 0 rgba(255, 255, 255, 0.08);
     }
 
     .led-muted.margin-warning {
-      background-color: #f59e0b;
+      background-color: #f97316;
+      border-color: rgba(254, 215, 170, 0.45);
       box-shadow:
-        0 0 5px 1.5px rgba(245, 158, 11, 0.95),
-        0 0 9px 2.5px rgba(239, 68, 68, 0.55);
+        0 0 7px 2px rgba(249, 115, 22, 0.9),
+        0 0 12px 3px rgba(239, 68, 68, 0.65);
     }
 
-    /* Physical T-Striker (Typebar Hammer: 13px tall, 1.5px stem, 9px crossbar) */
+    /* Physical T-Striker Hammer Extending Upward from Behind Top Center of Pill Carriage */
     .striker-assembly {
       position: absolute;
       left: 50%;
-      top: -13px;
+      top: -50px; /* 28px visible above the -22px pill top */
       transform: translateX(-50%);
-      width: 11px;
-      height: 13px;
+      width: 24px;
+      height: 32px;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -191,80 +250,83 @@
       will-change: transform;
     }
 
-    /* Horizontal Top Crossbar (9px wide) */
+    /* Thick Horizontal Cylindrical Hammer Head (22px x 6.5px desktop) */
     .striker-head {
-      width: 9px;
-      height: 1.7px;
-      border-radius: 1px;
-      background: linear-gradient(90deg, #232730, #4b5162, #232730);
-      box-shadow: 0 1px 1.5px rgba(0, 0, 0, 0.24);
+      width: 22px;
+      height: 6.5px;
+      border-radius: 1.5px;
+      background: linear-gradient(
+        180deg,
+        #18191c 0%,
+        #43474f 36%,
+        #2b2e34 72%,
+        #141518 100%
+      );
+      border-left: 1px solid #0e0f11;
+      border-right: 1px solid #0e0f11;
+      box-shadow:
+        0 3px 6px rgba(10, 10, 12, 0.45),
+        inset 0 0.5px 0 rgba(255, 255, 255, 0.22);
     }
 
-    /* Vertical Metallic Stem (1.5px wide) */
+    /* Dark Gunmetal Vertical Stem (3.5px wide desktop) */
     .striker-shaft {
-      width: 1.5px;
-      height: 11.3px;
-      background: linear-gradient(90deg, #2b303b, #636a7c, #232730);
+      width: 3.5px;
+      height: 25.5px;
+      background: linear-gradient(90deg, #16171a 0%, #373b42 45%, #141518 100%);
+      box-shadow: 2px 2px 5px rgba(10, 10, 12, 0.35);
     }
 
-    /* Small collar at top center of pill */
-    .striker-collar {
-      width: 4.5px;
-      height: 1.5px;
-      border-radius: 1px 1px 0 0;
-      background: #787f91;
-      margin-top: -1px;
-    }
-
-    /* Upward 5px strike animation on keystroke */
+    /* Upward -6px snap in 50ms and rebound in 110ms on every keystroke */
     .striker-assembly.striking {
-      animation: hammerStrike 0.06s cubic-bezier(0.16, 0.9, 0.25, 1) forwards;
+      animation: hammerStrike 0.16s cubic-bezier(0.18, 0.88, 0.3, 1) forwards;
     }
 
     .pill-body.jolting {
-      animation: pillJolt 0.065s ease-out forwards;
+      animation: pillJolt 0.08s ease-out forwards;
     }
 
     @keyframes hammerStrike {
       0% { transform: translateX(-50%) translateY(0); }
-      45% { transform: translateX(-50%) translateY(-5px); }
-      100% { transform: translateX(-50%) translateY(0); }
+      31.25% { transform: translateX(-50%) translateY(-6px); } /* 50ms upward snap */
+      100% { transform: translateX(-50%) translateY(0); }    /* 110ms rebound */
     }
 
     @keyframes pillJolt {
       0% { transform: translateY(0); }
-      45% { transform: translateY(0.8px); }
+      45% { transform: translateY(1px); }
       100% { transform: translateY(0); }
     }
 
     /* Subtle impact ring at hammer tip */
     .strike-spark {
       position: absolute;
-      top: -16px;
+      top: -55px;
       left: 50%;
-      width: 7px;
-      height: 3.5px;
-      margin-left: -3.5px;
+      width: 14px;
+      height: 5px;
+      margin-left: -7px;
       border-radius: 50%;
-      background: radial-gradient(circle, rgba(31, 34, 41, 0.24) 0%, transparent 75%);
+      background: radial-gradient(circle, rgba(22, 21, 19, 0.28) 0%, transparent 75%);
       opacity: 0;
       pointer-events: none;
     }
 
     .strike-spark.active {
-      animation: sparkPulse 0.12s ease-out forwards;
+      animation: sparkPulse 0.14s ease-out forwards;
     }
 
     @keyframes sparkPulse {
-      0% { opacity: 0.85; transform: scale(0.6); }
-      100% { opacity: 0; transform: scale(1.9); }
+      0% { opacity: 0.85; transform: scale(0.65); }
+      100% { opacity: 0; transform: scale(1.85); }
     }
 
-    /* Crisp Typewriter Ink Layer (Rendered strictly ABOVE the light layer) */
+    /* Crisp Carbon-Black Typewriter Ink Layer (Rendered strictly ABOVE the light layer) */
     .typewriter-text {
       font-family: var(--font-typewriter);
       color: var(--ink-color);
       font-feature-settings: "kern" 0, "liga" 0;
+      text-shadow: 0 0 0.4px rgba(22, 21, 19, 0.28);
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
     }
@@ -291,13 +353,6 @@
       }
     }
 
-    /* Faint half-struck ghost character right above the T-striker */
-    .char-ghost-preview {
-      opacity: 0.28;
-      color: var(--ink-color);
-      transition: opacity 0.15s ease;
-    }
-
     /* Overstrike character layered on top in Overstrike Mode */
     .overstrike-layer {
       position: absolute;
@@ -309,11 +364,11 @@
 
     /* Discreet HUD Glassmorphism */
     .hud-glass {
-      background: rgba(24, 27, 36, 0.82);
+      background: rgba(24, 23, 22, 0.84);
       backdrop-filter: blur(12px);
       -webkit-backdrop-filter: blur(12px);
       border: 1px solid rgba(255, 255, 255, 0.12);
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.32);
     }
 
     /* Custom Range Sliders */
@@ -349,34 +404,80 @@
       46% { transform: translateY(60px); opacity: 0; }
       100% { transform: translateY(0); opacity: 1; }
     }
+
+    /* Mobile & Touch Responsive Adjustments */
+    @media (max-width: 640px) {
+      .metallic-rail {
+        height: 17px;
+        top: calc(var(--rail-Y) - 8.5px);
+      }
+      .margin-collar {
+        width: 13px;
+        height: 22px;
+        top: calc(var(--rail-Y) - 11px);
+      }
+      .pill-body {
+        width: 88px;
+        height: 35px;
+        margin-left: -44px;
+        margin-top: -17.5px;
+        padding-left: 13px;
+      }
+      .amber-light-slot {
+        width: 18px;
+        height: 3px;
+      }
+      .led-cluster {
+        gap: 5.5px;
+      }
+      .micro-led {
+        width: 5.5px;
+        height: 5.5px;
+      }
+      .striker-assembly {
+        top: -40px;
+        width: 20px;
+        height: 26px;
+      }
+      .striker-head {
+        width: 18px;
+        height: 5.5px;
+      }
+      .striker-shaft {
+        width: 3px;
+        height: 20.5px;
+      }
+      .strike-spark {
+        top: -44px;
+      }
+    }
   </style>
 </head>
 <body class="select-none">
 
-  <!-- Hidden mobile/IME input for seamless typing -->
+  <!-- Hidden mobile/IME input positioned near rail at 16px font-size to prevent iOS zoom/scroll jump -->
   <textarea
     id="hidden-typewriter-input"
     autocomplete="off"
     autocorrect="off"
     autocapitalize="off"
     spellcheck="false"
+    inputmode="text"
     aria-label="Typewriter Input"
-    class="fixed -top-96 left-0 opacity-0 w-1 h-1 pointer-events-none"
+    style="top: var(--rail-Y); font-size: 16px;"
+    class="fixed left-1/2 -translate-x-1/2 opacity-0 w-8 h-8 pointer-events-none z-0"
   ></textarea>
 
   <!-- Pure Flat 2D Viewport Stage -->
   <div id="viewport-stage">
 
-    <!-- LAYER 1 (z-0): Ambient Paper Surface Base -->
+    <!-- LAYER 1 (z-0): Ambient Stone-Taupe Paper Surface Base -->
     <div id="paper-backdrop" class="absolute inset-0 z-0 transition-colors duration-300"></div>
 
-    <!-- LAYER 2 (z-10): Background Spotlight Canvas (Strictly BEHIND the ink layer so text is never washed out) -->
+    <!-- LAYER 2 (z-10): Textured Fibrous Paper & Warm V-Cone Spotlight Canvas (Strictly BEHIND ink) -->
     <canvas id="spotlight-canvas" class="absolute inset-0 w-full h-full pointer-events-none z-10"></canvas>
 
-    <!-- LAYER 3 (z-15): Subtle Matte Paper Grain (Behind Ink) -->
-    <div class="paper-grain absolute inset-0 pointer-events-none" style="z-index: 15;"></div>
-
-    <!-- LAYER 4 (z-25): Crisp High-Contrast Typewriter Ink Layer (Clipped cleanly at the 76vh horizontal rail) -->
+    <!-- LAYER 3 (z-25): Crisp High-Contrast Carbon-Black Ink Layer (Clipped cleanly above the rail) -->
     <div
       id="paper-clip-region"
       class="absolute inset-x-0 top-0 overflow-hidden pointer-events-none"
@@ -386,59 +487,82 @@
         id="paper-sheet"
         class="w-full h-full relative"
       >
-        <!-- Stamped dark charcoal ink lines sit cleanly on top of the lit paper -->
+        <!-- Stamped carbon-black ink lines sit cleanly above the T-striker hammer -->
         <div id="lines-container" class="absolute left-0 right-0 bottom-0"></div>
       </div>
     </div>
 
-    <!-- LAYER 5 (z-25): Lower Paper Platen Shadow Below the Rail -->
+    <!-- LAYER 4 (z-25): Lower Paper Platen Shadow Below the Thick Bar -->
     <div
       id="below-rail-paper"
       class="absolute inset-x-0 bottom-0 pointer-events-none"
-      style="top: var(--rail-Y); z-index: 25; background: linear-gradient(180deg, rgba(18, 21, 30, 0.14) 0px, rgba(18, 21, 30, 0.03) 12px, rgba(15, 18, 26, 0.08) 100%);"
+      style="top: var(--rail-Y); z-index: 25; background: linear-gradient(180deg, rgba(10, 10, 12, 0.28) 0px, rgba(10, 10, 12, 0.08) 22px, rgba(8, 8, 10, 0.14) 100%);"
     ></div>
 
-    <!-- LAYER 6 (z-30): Horizontal Metallic Rail at 76vh -->
-    <div class="rail-groove"></div>
+    <!-- LAYER 5 (z-20 / z-22): Thick Cylindrical Black Metal Bar & Left/Right Margin Clamp Collars -->
     <div class="metallic-rail"></div>
+    <div id="collar-left" class="margin-collar"></div>
+    <div id="collar-right" class="margin-collar"></div>
 
-    <!-- LAYER 7 (z-40): Sliding Pill Carriage & Physical T-Striker -->
+    <!-- LAYER 6 (z-30): Sliding Matte Charcoal Pill Carriage & Thick T-Striker Hammer -->
     <div id="pill-carriage" class="pill-carriage-wrapper">
-      <!-- Physical T-Shaped Metallic Typebar Striker -->
+      <!-- Physical T-Shaped Dark Gunmetal Hammer -->
       <div id="striker-pin" class="striker-assembly">
         <div class="striker-head"></div>
         <div class="striker-shaft"></div>
-        <div class="striker-collar"></div>
       </div>
       <!-- Subtle impact ring -->
       <div id="strike-spark" class="strike-spark"></div>
 
-      <!-- Matte Ceramic Pill Body with 3 Micro-LEDs -->
+      <!-- Matte Warm-Charcoal Pill Body with Glowing Top Amber Slot & 3 Recessed LEDs -->
       <div id="pill-body" class="pill-body">
+        <div id="amber-slot" class="amber-light-slot"></div>
         <div class="led-cluster">
-          <div id="led-1" class="micro-led led-amber"></div>
-          <div id="led-2" class="micro-led led-white"></div>
+          <div id="led-1" class="micro-led led-green"></div>
+          <div id="led-2" class="micro-led led-amber"></div>
           <div id="led-3" class="micro-led led-muted"></div>
         </div>
       </div>
     </div>
 
+    <!-- Subtle Auto-Fading Touch Prompt on Mobile / Touch Devices -->
+    <div
+      id="touch-prompt"
+      style="top: calc(var(--rail-Y) + 32px);"
+      class="hidden fixed left-1/2 -translate-x-1/2 z-40 px-3.5 py-1 rounded-full hud-glass text-slate-200 text-xs tracking-wide pointer-events-none transition-opacity duration-500"
+    >
+      Tap anywhere to type
+    </div>
+
   </div>
 
   <!-- ========================================================================= -->
-  <!-- ULTRA-MINIMALIST TOP-RIGHT HOVER PILL (opacity: 0.2, 1.0 on hover)        -->
+  <!-- TOUCH-FRIENDLY TOP-RIGHT HOVER PILL (0.25 desktop, 0.65 touch, 1.0 hover) -->
   <!-- ========================================================================= -->
   <div
     id="minimal-hud"
-    class="fixed top-4 right-5 z-50 transition-opacity duration-300 opacity-20 hover:opacity-100 focus-within:opacity-100"
+    class="fixed top-3 right-3 sm:top-4 sm:right-5 z-50 max-w-[calc(100vw-24px)] transition-opacity duration-300 opacity-25 hover:opacity-100 focus-within:opacity-100"
     style="cursor: default;"
   >
-    <div class="flex items-center gap-1 px-2.5 py-1 rounded-full hud-glass text-slate-200 text-[11px]">
+    <div class="flex flex-wrap items-center justify-end gap-0.5 sm:gap-1 px-2 py-1 rounded-full hud-glass text-slate-200 text-[11px]">
+      <!-- Mobile Soft Keyboard Toggle Button -->
+      <button
+        id="quick-kbd-btn"
+        type="button"
+        class="hidden items-center justify-center min-w-[40px] min-h-[36px] sm:min-h-[32px] px-2.5 rounded-full hover:bg-white/10 active:bg-white/20 transition text-amber-200"
+        title="Toggle On-Screen Keyboard"
+      >
+        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <rect x="2" y="5" width="20" height="14" rx="2" ry="2"></rect>
+          <path d="M6 9h.01M10 9h.01M14 9h.01M18 9h.01M8 13h.01M12 13h.01M16 13h.01M7 16h10"></path>
+        </svg>
+      </button>
+
       <!-- Lamp Brightness & Settings Popover Button -->
       <button
         id="btn-settings"
         type="button"
-        class="flex items-center gap-1 px-2 py-0.5 rounded-full hover:bg-white/10 transition text-amber-300"
+        class="flex items-center justify-center gap-1 min-w-[40px] min-h-[36px] sm:min-h-[32px] px-2.5 rounded-full hover:bg-white/10 active:bg-white/20 transition text-amber-300"
         title="Lamp Brightness & Typewriter Settings"
       >
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
@@ -453,7 +577,7 @@
       <button
         id="quick-audio-btn"
         type="button"
-        class="px-2 py-0.5 rounded-full hover:bg-white/10 transition text-slate-200"
+        class="flex items-center justify-center min-w-[40px] min-h-[36px] sm:min-h-[32px] px-2.5 rounded-full hover:bg-white/10 active:bg-white/20 transition text-slate-200"
         title="Toggle Mechanical Key Click Audio"
       >
         Keys: On
@@ -465,19 +589,19 @@
       <button
         id="quick-rain-btn"
         type="button"
-        class="px-2 py-0.5 rounded-full hover:bg-white/10 transition text-slate-300"
+        class="flex items-center justify-center min-w-[40px] min-h-[36px] sm:min-h-[32px] px-2.5 rounded-full hover:bg-white/10 active:bg-white/20 transition text-slate-300"
         title="Toggle Soft Rain Ambience"
       >
         Rain: Off
       </button>
 
-      <span class="text-white/15">|</span>
+      <span class="text-white/15 hidden sm:inline">|</span>
 
       <!-- Clear Page -->
       <button
         id="action-new-sheet"
         type="button"
-        class="px-2 py-0.5 rounded-full hover:bg-white/10 transition text-slate-300 hover:text-white"
+        class="flex items-center justify-center min-w-[40px] min-h-[36px] sm:min-h-[32px] px-2.5 rounded-full hover:bg-white/10 active:bg-white/20 transition text-slate-300 hover:text-white"
         title="Clear Page"
       >
         Clear
@@ -489,41 +613,41 @@
       <button
         id="action-export-txt"
         type="button"
-        class="px-2 py-0.5 rounded-full hover:bg-white/10 transition text-emerald-300"
+        class="flex items-center justify-center min-w-[40px] min-h-[36px] sm:min-h-[32px] px-2.5 rounded-full hover:bg-white/10 active:bg-white/20 transition text-emerald-300"
         title="Export Manuscript (.txt)"
       >
         .txt
       </button>
     </div>
 
-    <!-- Discreet Settings Popover (Lamp Brightness, Paper Mode, Typeface, Overstrike) -->
+    <!-- Discreet Settings Popover (Lamp Brightness 30%-120%, Paper Mode, Typeface, Overstrike) -->
     <div
       id="popover-settings"
-      class="hidden absolute right-0 mt-2 w-64 p-3.5 rounded-2xl hud-glass text-slate-200 shadow-2xl space-y-3"
+      class="hidden absolute right-0 mt-2 w-64 max-w-[calc(100vw-24px)] p-3.5 rounded-2xl hud-glass text-slate-200 shadow-2xl space-y-3"
     >
       <div class="flex items-center justify-between border-b border-white/10 pb-1.5">
         <span class="font-medium text-[11px] uppercase tracking-wider text-slate-300">Lamp & Mechanics</span>
         <span id="stats-counter" class="text-[10px] text-slate-400 font-mono">5 words</span>
       </div>
 
-      <!-- Lamp Brightness Slider -->
+      <!-- Lamp Brightness Slider (25% to 120%) -->
       <div>
         <div class="flex justify-between text-[11px] mb-1">
           <span class="text-slate-300">Lamp Brightness</span>
-          <span id="val-intensity" class="text-amber-300 font-mono">75%</span>
+          <span id="val-intensity" class="text-amber-300 font-mono">85%</span>
         </div>
-        <input id="slider-intensity" type="range" min="0.15" max="1.0" step="0.05" value="0.75" class="tactile-slider" />
+        <input id="slider-intensity" type="range" min="0.25" max="1.20" step="0.05" value="0.85" class="tactile-slider" />
       </div>
 
-      <!-- Paper Surface Mode (Standard Slate #b8bcc6 vs Dark Mode #16181f) -->
+      <!-- Paper Surface Mode (Stone Taupe #5c5852 vs Dim Room #2e2c29) -->
       <div>
         <label class="block text-[10px] uppercase tracking-wider text-slate-400 mb-1">Paper Surface</label>
         <div class="grid grid-cols-2 gap-1.5">
-          <button data-theme="standard" class="theme-btn px-2.5 py-1 rounded-lg text-[11px] bg-white/15 text-white font-medium text-left flex items-center gap-1.5">
-            <span class="w-2.5 h-2.5 rounded-full bg-[#b8bcc6] border border-white/40"></span> Slate Paper
+          <button data-theme="standard" class="theme-btn min-h-[36px] px-2.5 py-1 rounded-lg text-[11px] bg-white/15 text-white font-medium text-left flex items-center gap-1.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-[#5c5852] border border-white/40"></span> Fibrous Taupe
           </button>
-          <button data-theme="dark" class="theme-btn px-2.5 py-1 rounded-lg text-[11px] bg-white/5 hover:bg-white/10 text-slate-300 text-left flex items-center gap-1.5">
-            <span class="w-2.5 h-2.5 rounded-full bg-[#16181f] border border-white/40"></span> Dark Mode
+          <button data-theme="dark" class="theme-btn min-h-[36px] px-2.5 py-1 rounded-lg text-[11px] bg-white/5 hover:bg-white/10 text-slate-300 text-left flex items-center gap-1.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-[#2b2926] border border-white/40"></span> Dim Study
           </button>
         </div>
       </div>
@@ -532,9 +656,9 @@
       <div>
         <label class="block text-[10px] uppercase tracking-wider text-slate-400 mb-1">Typeface</label>
         <div class="grid grid-cols-3 gap-1">
-          <button data-font="'Courier Prime', monospace" class="font-btn px-2 py-1 rounded bg-white/15 text-white text-[11px] font-mono">Courier</button>
-          <button data-font="'Special Elite', monospace" class="font-btn px-2 py-1 rounded bg-white/5 hover:bg-white/10 text-slate-300 text-[11px]" style="font-family: 'Special Elite', monospace;">Elite</button>
-          <button data-font="'IBM Plex Mono', monospace" class="font-btn px-2 py-1 rounded bg-white/5 hover:bg-white/10 text-slate-300 text-[11px]" style="font-family: 'IBM Plex Mono', monospace;">Plex</button>
+          <button data-font="'Courier Prime', monospace" class="font-btn min-h-[36px] px-2 py-1 rounded bg-white/15 text-white text-[11px] font-mono">Courier</button>
+          <button data-font="'Special Elite', monospace" class="font-btn min-h-[36px] px-2 py-1 rounded bg-white/5 hover:bg-white/10 text-slate-300 text-[11px]" style="font-family: 'Special Elite', monospace;">Elite</button>
+          <button data-font="'IBM Plex Mono', monospace" class="font-btn min-h-[36px] px-2 py-1 rounded bg-white/5 hover:bg-white/10 text-slate-300 text-[11px]" style="font-family: 'IBM Plex Mono', monospace;">Plex</button>
         </div>
       </div>
 
@@ -542,10 +666,10 @@
       <div>
         <label class="block text-[10px] uppercase tracking-wider text-slate-400 mb-1">Backspace Action</label>
         <div class="grid grid-cols-2 gap-1.5">
-          <button id="mode-ribbon" type="button" class="px-2 py-1 rounded-lg text-[11px] bg-white/15 text-white font-medium">
-            Clean Erase
+          <button id="mode-ribbon" type="button" class="min-h-[36px] px-2 py-1 rounded-lg text-[11px] bg-white/15 text-white font-medium">
+            Lift-Off
           </button>
-          <button id="mode-overstrike" type="button" class="px-2 py-1 rounded-lg text-[11px] bg-white/5 hover:bg-white/10 text-slate-300">
+          <button id="mode-overstrike" type="button" class="min-h-[36px] px-2 py-1 rounded-lg text-[11px] bg-white/5 hover:bg-white/10 text-slate-300">
             Overstrike
           </button>
         </div>
@@ -589,31 +713,30 @@
       // -----------------------------------------------------------------------
       // 1. CONFIGURATION & INITIAL REFERENCE SCENE STATE
       // -----------------------------------------------------------------------
-      const STORAGE_KEY = 'lumen_tactile_typewriter_state_v2';
+      const STORAGE_KEY = 'lumen_tactile_typewriter_state_v3';
 
-      // Exact initial scene from the reference image: "The rain was heavy, he"
-      // with a faint half-struck "r" right above the T-striker
+      // Immediate interactive reference sentence stamped just above the T-striker hammer
       const INITIAL_REFERENCE_TEXT = 'The rain was heavy, he';
-      const INITIAL_GHOST_CHAR = 'r';
 
       const THEMES = {
         standard: {
-          name: 'Slate Paper',
-          paperBase: '#b8bcc6',
-          inkColor: '#1f2229',
-          // Smooth warm ivory (#faf3e3) -> warm cream (#e8e1d3) -> cool slate (#b8bcc6)
-          coneCore: [250, 243, 227],
-          coneMid: [242, 234, 214],
-          coneOuter: [232, 225, 211]
+          name: 'Fibrous Taupe',
+          paperBase: '#5c5852',
+          vignetteEdge: 'rgba(54, 51, 47, 0.58)',
+          inkColor: '#161513',
+          // Warm cream-parchment (#f4dfb6) -> warm sand (#ccb790) -> muted taupe (#8a7f6d)
+          coneCore: [244, 223, 182],
+          coneMid: [204, 183, 144],
+          coneOuter: [138, 127, 109]
         },
         dark: {
-          name: 'Dark Mode',
-          paperBase: '#16181f',
-          inkColor: '#1a1d24',
-          // Warm lit paper cone in dark room so dark charcoal ink stays crisp inside the beam
-          coneCore: [238, 228, 206],
-          coneMid: [204, 193, 172],
-          coneOuter: [120, 115, 108]
+          name: 'Dim Study',
+          paperBase: '#2b2926',
+          vignetteEdge: 'rgba(18, 17, 15, 0.72)',
+          inkColor: '#141311',
+          coneCore: [240, 216, 172],
+          coneMid: [188, 166, 128],
+          coneOuter: [108, 98, 84]
         }
       };
 
@@ -621,10 +744,9 @@
         lines: [],
         currentLineIndex: 0,
         cursorCol: 0,
-        ghostChar: INITIAL_GHOST_CHAR,
 
-        // Flat 2D layout metrics (max-width: 720px centered typing column, 20px font, rail at 76vh)
-        maxCols: 56,
+        // Flat 2D layout metrics (20px desktop, 16px mobile, rail at 76vh)
+        maxCols: 54,
         charWidth: 12.0,
         lineHeight: 34,
         railYRatio: 0.76,
@@ -635,13 +757,13 @@
         targetCarriageX: window.innerWidth * 0.5,
         currentCarriageX: window.innerWidth * 0.5,
         paperScrollOffsetLines: 0,
-        currentPaperY: 0,
         targetPaperY: 0,
+        currentPaperY: 0,
 
-        // Balanced lamp settings (no glare/overexposure)
+        // Calibrated ~112-degree V-cone lamp settings (25% to 120%)
         themeKey: 'standard',
-        lampIntensity: 0.75,
-        coneSpreadDeg: 78,
+        lampIntensity: 0.85,
+        coneSpreadDeg: 112,
         fontFamily: "'Courier Prime', monospace",
 
         // Audio & Mechanics settings
@@ -649,7 +771,8 @@
         mechVolume: 0.8,
         rainEnabled: false,
         rainVolume: 0.4,
-        correctionMode: 'ribbon'
+        correctionMode: 'ribbon',
+        isTouchDevice: false
       };
 
       // DOM Elements
@@ -660,8 +783,11 @@
         paperClipRegion: document.getElementById('paper-clip-region'),
         paperSheet: document.getElementById('paper-sheet'),
         linesContainer: document.getElementById('lines-container'),
+        collarLeft: document.getElementById('collar-left'),
+        collarRight: document.getElementById('collar-right'),
         pillCarriage: document.getElementById('pill-carriage'),
         pillBody: document.getElementById('pill-body'),
+        amberSlot: document.getElementById('amber-slot'),
         strikerPin: document.getElementById('striker-pin'),
         strikeSpark: document.getElementById('strike-spark'),
         led1: document.getElementById('led-1'),
@@ -669,10 +795,12 @@
         led3: document.getElementById('led-3'),
         hiddenInput: document.getElementById('hidden-typewriter-input'),
         hud: document.getElementById('minimal-hud'),
+        touchPrompt: document.getElementById('touch-prompt'),
         statsCounter: document.getElementById('stats-counter'),
         toastBox: document.getElementById('toast-box'),
 
         // Top-right discreet controls
+        quickKbdBtn: document.getElementById('quick-kbd-btn'),
         btnSettings: document.getElementById('btn-settings'),
         popoverSettings: document.getElementById('popover-settings'),
         sliderIntensity: document.getElementById('slider-intensity'),
@@ -688,6 +816,82 @@
       };
 
       const ctx = dom.spotlightCanvas.getContext('2d');
+
+      // -----------------------------------------------------------------------
+      // 1B. HIGH-DPI TILEABLE FIBROUS COTTON PAPER PATTERN GENERATOR
+      // -----------------------------------------------------------------------
+      let paperFiberPattern = null;
+
+      function buildFibrousPaperPattern() {
+        const tileSize = 320;
+        const offCanvas = document.createElement('canvas');
+        offCanvas.width = tileSize;
+        offCanvas.height = tileSize;
+        const octx = offCanvas.getContext('2d');
+
+        // 1. Fine tactile paper tooth (subtle light & dark mineral micro-grain)
+        const imgData = octx.createImageData(tileSize, tileSize);
+        const data = imgData.data;
+        for (let i = 0; i < data.length; i += 4) {
+          const n = Math.random();
+          if (n > 0.56) {
+            data[i] = 255;
+            data[i + 1] = 248;
+            data[i + 2] = 235;
+            data[i + 3] = Math.floor((n - 0.56) * 28);
+          } else if (n < 0.44) {
+            data[i] = 20;
+            data[i + 1] = 18;
+            data[i + 2] = 15;
+            data[i + 3] = Math.floor((0.44 - n) * 32);
+          }
+        }
+        octx.putImageData(imgData, 0, 0);
+
+        // 2. Organic cotton fibers (curved micro-filaments wrapped seamlessly across tile edges)
+        octx.lineCap = 'round';
+        for (let i = 0; i < 165; i++) {
+          const x = Math.random() * tileSize;
+          const y = Math.random() * tileSize;
+          const len = 6 + Math.random() * 18;
+          const angle = Math.random() * Math.PI * 2;
+          const bend = (Math.random() - 0.5) * 8;
+          const isDarkFiber = Math.random() < 0.68;
+
+          const cx = x + Math.cos(angle) * (len * 0.5) - Math.sin(angle) * bend;
+          const cy = y + Math.sin(angle) * (len * 0.5) + Math.cos(angle) * bend;
+          const ex = x + Math.cos(angle) * len;
+          const ey = y + Math.sin(angle) * len;
+
+          octx.strokeStyle = isDarkFiber
+            ? `rgba(26, 23, 19, ${(0.07 + Math.random() * 0.11).toFixed(2)})`
+            : `rgba(255, 248, 232, ${(0.06 + Math.random() * 0.08).toFixed(2)})`;
+          octx.lineWidth = 0.45 + Math.random() * 0.65;
+
+          // Draw wrapped across edges so tiling is completely seamless
+          for (let ox = -tileSize; ox <= tileSize; ox += tileSize) {
+            for (let oy = -tileSize; oy <= tileSize; oy += tileSize) {
+              octx.beginPath();
+              octx.moveTo(x + ox, y + oy);
+              octx.quadraticCurveTo(cx + ox, cy + oy, ex + ox, ey + oy);
+              octx.stroke();
+            }
+          }
+        }
+
+        // 3. Tiny natural dark flecks & organic botanical specks (matching reference paper)
+        for (let i = 0; i < 85; i++) {
+          const fx = Math.random() * tileSize;
+          const fy = Math.random() * tileSize;
+          const r = 0.45 + Math.random() * 1.15;
+          octx.fillStyle = `rgba(24, 21, 17, ${(0.14 + Math.random() * 0.22).toFixed(2)})`;
+          octx.beginPath();
+          octx.ellipse(fx, fy, r, r * (0.6 + Math.random() * 0.6), Math.random() * Math.PI, 0, Math.PI * 2);
+          octx.fill();
+        }
+
+        paperFiberPattern = ctx.createPattern(offCanvas, 'repeat');
+      }
 
       // -----------------------------------------------------------------------
       // 2. PROCEDURAL WEB AUDIO SYNTHESIZER (Mechanical Keys, Bell & Rain)
@@ -1033,12 +1237,12 @@
         return {
           char: char,
           overstrikes: [],
-          // Crisp dark charcoal ink density variation (0.86 to 0.98) for 100% legibility
-          opacity: +(0.86 + Math.random() * 0.12).toFixed(2),
-          // Micro vertical jitter (±0.3px) and subtle horizontal/rotational organic feel
+          // Crisp deep carbon-black ink density (0.88 to 0.98) for effortless legibility
+          opacity: +(0.88 + Math.random() * 0.10).toFixed(2),
+          // Micro mechanical jitter (±0.3px vertical & subtle organic angle)
           dy: +((Math.random() - 0.5) * 0.6).toFixed(2),
-          dx: +((Math.random() - 0.5) * 0.25).toFixed(2),
-          rot: +((Math.random() - 0.5) * 0.45).toFixed(2),
+          dx: +((Math.random() - 0.5) * 0.24).toFixed(2),
+          rot: +((Math.random() - 0.5) * 0.4).toFixed(2),
           fresh: isFresh
         };
       }
@@ -1059,7 +1263,6 @@
         state.lines = [stringToLine(INITIAL_REFERENCE_TEXT)];
         state.currentLineIndex = 0;
         state.cursorCol = INITIAL_REFERENCE_TEXT.length;
-        state.ghostChar = INITIAL_GHOST_CHAR;
         state.paperScrollOffsetLines = 0;
       }
 
@@ -1075,7 +1278,6 @@
             state.lines = parsed.lines;
             state.currentLineIndex = Math.min(parsed.currentLineIndex || 0, state.lines.length - 1);
             state.cursorCol = parsed.cursorCol || 0;
-            state.ghostChar = parsed.ghostChar !== undefined ? parsed.ghostChar : '';
             if (parsed.themeKey && THEMES[parsed.themeKey]) state.themeKey = parsed.themeKey;
             if (typeof parsed.lampIntensity === 'number') state.lampIntensity = parsed.lampIntensity;
             if (parsed.fontFamily) state.fontFamily = parsed.fontFamily;
@@ -1094,7 +1296,6 @@
             lines: state.lines,
             currentLineIndex: state.currentLineIndex,
             cursorCol: state.cursorCol,
-            ghostChar: state.ghostChar,
             themeKey: state.themeKey,
             lampIntensity: state.lampIntensity,
             fontFamily: state.fontFamily,
@@ -1107,20 +1308,29 @@
       }
 
       // -----------------------------------------------------------------------
-      // 4. FLAT 2D LAYOUT METRICS & SLIDING PILL CARRIAGE POSITIONING
+      // 4. FLAT 2D LAYOUT METRICS, MARGIN COLLARS & SLIDING PILL CARRIAGE
       // -----------------------------------------------------------------------
-      function measureLayoutMetrics() {
-        const vw = window.innerWidth;
-        const vh = window.innerHeight;
+      function getActiveViewportMetrics() {
+        const vv = window.visualViewport;
+        return {
+          vw: vv ? vv.width : window.innerWidth,
+          vh: vv ? vv.height : window.innerHeight,
+          offsetTop: vv ? vv.offsetTop : 0
+        };
+      }
 
-        // Horizontal metallic rail fixed at 76vh
-        state.railY = Math.round(vh * state.railYRatio);
+      function measureLayoutMetrics() {
+        const { vw, vh, offsetTop } = getActiveViewportMetrics();
+        const isMobile = vw < 640;
+
+        // Horizontal cylindrical rail fixed at 76% of active visual viewport height
+        state.railY = Math.round(offsetTop + vh * state.railYRatio);
         document.documentElement.style.setProperty('--rail-Y', `${state.railY}px`);
 
-        // Measure 20px monospace character width accurately
+        // Measure monospace character width accurately (20px desktop, 16px mobile)
         const probe = document.createElement('span');
         probe.className = 'typewriter-text';
-        probe.style.fontSize = vw < 640 ? '16px' : '20px';
+        probe.style.fontSize = isMobile ? '16px' : '20px';
         probe.style.position = 'absolute';
         probe.style.visibility = 'hidden';
         probe.textContent = 'MMMMMMMMMM';
@@ -1128,24 +1338,43 @@
         const measuredCharW = probe.getBoundingClientRect().width / 10;
         document.body.removeChild(probe);
 
-        state.charWidth = measuredCharW || 12.0;
-        state.lineHeight = vw < 640 ? 28 : 34;
+        state.charWidth = measuredCharW || (isMobile ? 9.6 : 12.0);
+        state.lineHeight = isMobile ? 28 : 34;
 
-        // Horizontally centered typing column (max-width: 720px)
-        const targetColumnWidth = Math.min(720, vw - 48);
-        state.maxCols = Math.max(24, Math.floor(targetColumnWidth / state.charWidth));
+        // Responsive margins leaving room for the cylindrical margin clamp collars
+        const collarWidth = isMobile ? 13 : 16;
+        const minSidePadding = isMobile ? 24 : Math.max(Math.round(vw * 0.06), 54);
+        const availableWidth = Math.max(210, vw - minSidePadding * 2);
+        const targetColumnWidth = isMobile ? availableWidth : Math.min(720, availableWidth);
+        state.maxCols = Math.max(18, Math.floor(targetColumnWidth / state.charWidth));
 
         const actualColumnWidth = state.maxCols * state.charWidth;
         const centeredLeft = (vw - actualColumnWidth) / 2;
-        // Align so column 22 ("The rain was heavy, he") places the pill carriage near the center of the screen
-        const refLeft = vw * 0.485 - 22 * state.charWidth;
-        state.leftMarginPx = Math.round(Math.max(24, Math.min(centeredLeft, refLeft)));
 
-        // Resize background spotlight canvas
+        if (isMobile) {
+          state.leftMarginPx = Math.max(minSidePadding, Math.round(centeredLeft));
+        } else {
+          // Position so column 22 ("The rain was heavy, he") places the pill carriage near center
+          const refLeft = vw * 0.495 - 22 * state.charWidth;
+          state.leftMarginPx = Math.round(Math.max(minSidePadding, Math.min(centeredLeft, refLeft)));
+        }
+
+        // Position the left and right cylindrical margin clamp collars onto the thick rod
+        const rightMarginPx = state.leftMarginPx + state.maxCols * state.charWidth;
+        dom.collarLeft.style.left = `${Math.max(4, state.leftMarginPx - collarWidth - 4)}px`;
+        dom.collarRight.style.left = `${Math.min(vw - collarWidth - 4, rightMarginPx + 4)}px`;
+
+        // Resize background lighting canvas to match full window
+        const canvasW = window.innerWidth;
+        const canvasH = window.innerHeight;
         const dpr = Math.min(window.devicePixelRatio || 1, 2);
-        dom.spotlightCanvas.width = vw * dpr;
-        dom.spotlightCanvas.height = vh * dpr;
+        dom.spotlightCanvas.width = canvasW * dpr;
+        dom.spotlightCanvas.height = canvasH * dpr;
         ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+        if (!paperFiberPattern) {
+          buildFibrousPaperPattern();
+        }
 
         updateTargetCoordinates(false);
         renderPaperDOM();
@@ -1153,7 +1382,7 @@
 
       function updateTargetCoordinates(immediate = false) {
         const activeCol = Math.min(state.cursorCol, state.maxCols);
-        // Pill carriage slides horizontally to follow the exact X center of the active character cursor
+        // Pill carriage slides horizontally to align the T-striker with the active cursor X
         state.targetCarriageX = state.leftMarginPx + activeCol * state.charWidth + state.charWidth * 0.5;
         state.targetPaperY = state.paperScrollOffsetLines * state.lineHeight;
 
@@ -1162,9 +1391,9 @@
           state.currentPaperY = state.targetPaperY;
         }
 
-        // Flash the 3rd pinhole LED subtly within 6 characters of the right margin
+        // Illuminate the 3rd margin/bell LED warm orange-red within 5 characters of the right collar
         const remainingCols = state.maxCols - state.cursorCol;
-        if (remainingCols <= 6 && remainingCols >= 0) {
+        if (remainingCols <= 5 && remainingCols >= 0) {
           dom.led3.classList.add('margin-warning');
         } else {
           dom.led3.classList.remove('margin-warning');
@@ -1172,16 +1401,17 @@
       }
 
       // -----------------------------------------------------------------------
-      // 5. CRISP TYPEWRITER INK LAYER RENDERING (Above Spotlight Canvas)
+      // 5. CRISP CARBON-BLACK INK LAYER RENDERING (Above Spotlight Canvas)
       // -----------------------------------------------------------------------
       function renderPaperDOM() {
         const vw = window.innerWidth;
-        const fontSize = vw < 640 ? '16px' : '20px';
+        const isMobile = vw < 640;
+        const fontSize = isMobile ? '16px' : '20px';
 
         dom.linesContainer.innerHTML = '';
         dom.linesContainer.style.paddingLeft = `${state.leftMarginPx}px`;
-        // Position active typing baseline 14px above the rail, directly at the tip of the 13px T-striker
-        dom.linesContainer.style.bottom = '14px';
+        // Position active typing baseline directly above the T-striker hammer head
+        dom.linesContainer.style.bottom = isMobile ? '48px' : '60px';
 
         state.lines.forEach((lineObj, lineIdx) => {
           if (lineIdx > state.currentLineIndex) return;
@@ -1219,15 +1449,6 @@
             rowEl.appendChild(span);
           });
 
-          // Render faint half-struck character ("r" initially, or subtle cursor imprint) right above the T-striker
-          if (lineIdx === state.currentLineIndex && state.ghostChar && state.cursorCol === lineObj.cells.length) {
-            const ghostSpan = document.createElement('span');
-            ghostSpan.className = 'char-cell char-ghost-preview';
-            ghostSpan.style.width = `${state.charWidth}px`;
-            ghostSpan.textContent = state.ghostChar;
-            rowEl.appendChild(ghostSpan);
-          }
-
           dom.linesContainer.appendChild(rowEl);
         });
 
@@ -1245,115 +1466,115 @@
       }
 
       // -----------------------------------------------------------------------
-      // 6. BALANCED WARM SPOTLIGHT CONE (Strictly on Background Paper Layer)
+      // 6. CALIBRATED ~112-DEGREE WARM V-CONE LIGHTING & FIBROUS PAPER TEXTURE
       // -----------------------------------------------------------------------
       function renderVolumetricSpotlight() {
         const vw = window.innerWidth;
         const vh = window.innerHeight;
+        const isMobile = vw < 640;
         const theme = THEMES[state.themeKey] || THEMES.standard;
 
         ctx.clearRect(0, 0, vw, vh);
 
-        // 1. Subtle peripheral paper vignette so outer corners feel naturally unlit
+        // 1. Subtle peripheral stone-taupe vignette on outer unlit edges
         const edgeGrad = ctx.createRadialGradient(
           vw * 0.5,
           vh * 0.45,
-          vh * 0.25,
+          vh * 0.22,
           vw * 0.5,
           vh * 0.45,
-          Math.max(vw, vh) * 0.78
+          Math.max(vw, vh) * 0.8
         );
         edgeGrad.addColorStop(0, 'rgba(0, 0, 0, 0)');
-        edgeGrad.addColorStop(1, state.themeKey === 'dark' ? 'rgba(0, 0, 0, 0.45)' : 'rgba(22, 26, 38, 0.14)');
+        edgeGrad.addColorStop(1, theme.vignetteEdge);
         ctx.fillStyle = edgeGrad;
         ctx.fillRect(0, 0, vw, vh);
 
         const intensity = state.lampIntensity;
-        if (intensity <= 0.02) return;
-
         const originX = state.currentCarriageX;
-        const originY = state.railY;
+        // Light originates strictly from the top amber light slot of the pill carriage
+        const pillTopOffset = isMobile ? 16 : 20;
+        const emitterY = state.railY - pillTopOffset;
 
-        const [cr, cg, cb] = theme.coneCore;   // Soft warm ivory (#faf3e3)
-        const [mr, mg, mb] = theme.coneMid;    // Warm cream (#f2ead6)
-        const [or, og, ob] = theme.coneOuter;  // Soft edge transition (#e8e1d3)
+        // Scale top amber slot bloom subtly with Lamp Brightness
+        if (dom.amberSlot) {
+          dom.amberSlot.style.opacity = Math.max(0.35, Math.min(1, 0.35 + intensity * 0.65)).toFixed(2);
+        }
 
-        // 2. Single Smooth ~78-Degree V-Cone Projecting Upward from (carriageX, railY)
-        // Rendered strictly above the rail on the background paper canvas (zero hotspot clipping)
-        ctx.save();
-        ctx.beginPath();
-        ctx.rect(0, 0, vw, originY);
-        ctx.clip();
+        if (intensity > 0.02) {
+          const [cr, cg, cb] = theme.coneCore;   // Warm cream-parchment (#f4dfb6)
+          const [mr, mg, mb] = theme.coneMid;    // Warm sand (#ccb790)
+          const [or, og, ob] = theme.coneOuter;  // Muted taupe (#8a7f6d)
 
-        const coneHeight = Math.max(vh * 0.68, 440);
-        const halfAngleRad = ((state.coneSpreadDeg / 2) * Math.PI) / 180;
-        const topHalfWidth = Math.tan(halfAngleRad) * coneHeight;
+          // 2. Broad ~112-degree V-shaped warm tungsten spotlight cone projecting upward
+          ctx.save();
+          ctx.beginPath();
+          ctx.rect(0, 0, vw, emitterY + 4);
+          ctx.clip();
 
-        ctx.beginPath();
-        // Start from the top width of the pill carriage
-        ctx.moveTo(originX - 24, originY + 2);
-        // Smooth ~78-degree V-cone sides flaring upward
-        ctx.quadraticCurveTo(
-          originX - topHalfWidth * 0.52,
-          originY - coneHeight * 0.34,
-          originX - topHalfWidth,
-          originY - coneHeight * 0.85
-        );
-        // Rounded upper dome of the spotlight cone
-        ctx.arc(
-          originX,
-          originY - coneHeight * 0.48,
-          topHalfWidth * 0.92,
-          Math.PI,
-          0,
-          false
-        );
-        ctx.quadraticCurveTo(
-          originX + topHalfWidth * 0.52,
-          originY - coneHeight * 0.34,
-          originX + 24,
-          originY + 2
-        );
-        ctx.closePath();
+          const radiusScale = 0.72 + intensity * 0.36;
+          const coneHeight = Math.max(vh * 0.72, 360) * radiusScale;
+          const halfAngleRad = ((state.coneSpreadDeg / 2) * Math.PI) / 180; // 56 deg each side = 112 deg total
+          const topHalfWidth = Math.tan(halfAngleRad) * coneHeight;
+          const slotHalfW = isMobile ? 9 : 11;
 
-        // Soft natural penumbra along the V-cone edges
-        ctx.filter = 'blur(28px)';
+          // Build clean V-wedge with softly feathered angular edges matching the reference photo
+          ctx.beginPath();
+          ctx.moveTo(originX - slotHalfW, emitterY + 2);
+          ctx.lineTo(originX - topHalfWidth, emitterY - coneHeight);
+          ctx.lineTo(originX + topHalfWidth, emitterY - coneHeight);
+          ctx.lineTo(originX + slotHalfW, emitterY + 2);
+          ctx.closePath();
 
-        // Single balanced radial gradient from the pill carriage upward
-        const coneGrad = ctx.createRadialGradient(
-          originX,
-          originY - 10,
-          6,
-          originX,
-          originY - coneHeight * 0.38,
-          coneHeight * 0.62
-        );
+          ctx.filter = 'blur(16px)';
 
-        coneGrad.addColorStop(0, `rgba(${cr}, ${cg}, ${cb}, ${Math.min(0.94, intensity * 1.1)})`);
-        coneGrad.addColorStop(0.32, `rgba(${mr}, ${mg}, ${mb}, ${Math.min(0.78, intensity * 0.9)})`);
-        coneGrad.addColorStop(0.68, `rgba(${or}, ${og}, ${ob}, ${Math.min(0.38, intensity * 0.45)})`);
-        coneGrad.addColorStop(1, `rgba(${or}, ${og}, ${ob}, 0)`);
+          const coneGrad = ctx.createRadialGradient(
+            originX,
+            emitterY - 4,
+            4,
+            originX,
+            emitterY - coneHeight * 0.25,
+            coneHeight * 0.88
+          );
 
-        ctx.fillStyle = coneGrad;
-        ctx.fill();
-        ctx.restore();
+          const coreAlpha = Math.min(0.96, 0.24 + intensity * 0.74);
+          const midAlpha = Math.min(0.84, 0.16 + intensity * 0.64);
+          const outerAlpha = Math.min(0.52, intensity * 0.44);
 
-        // 3. Subtle warm glint on the metallic rail right beneath the pill carriage
-        ctx.save();
-        const railGlow = ctx.createLinearGradient(originX - 110, 0, originX + 110, 0);
-        railGlow.addColorStop(0, 'rgba(250, 243, 227, 0)');
-        railGlow.addColorStop(0.5, `rgba(250, 243, 227, ${0.42 * intensity})`);
-        railGlow.addColorStop(1, 'rgba(250, 243, 227, 0)');
-        ctx.fillStyle = railGlow;
-        ctx.fillRect(originX - 110, originY - 1, 220, 2);
-        ctx.restore();
+          coneGrad.addColorStop(0, `rgba(${cr}, ${cg}, ${cb}, ${coreAlpha})`);
+          coneGrad.addColorStop(0.28, `rgba(${mr}, ${mg}, ${mb}, ${midAlpha})`);
+          coneGrad.addColorStop(0.62, `rgba(${or}, ${og}, ${ob}, ${outerAlpha})`);
+          coneGrad.addColorStop(1, `rgba(${or}, ${og}, ${ob}, 0)`);
+
+          ctx.fillStyle = coneGrad;
+          ctx.fill();
+          ctx.restore();
+
+          // 3. Subtle soft shadow cast by the T-striker stem onto the lit paper right behind it
+          ctx.save();
+          ctx.filter = 'blur(3.5px)';
+          const stemShadowGrad = ctx.createLinearGradient(0, emitterY, 0, emitterY - (isMobile ? 26 : 32));
+          stemShadowGrad.addColorStop(0, `rgba(38, 34, 28, ${0.26 * Math.min(1, intensity)})`);
+          stemShadowGrad.addColorStop(1, 'rgba(38, 34, 28, 0)');
+          ctx.fillStyle = stemShadowGrad;
+          ctx.fillRect(originX - 2.5, emitterY - (isMobile ? 26 : 32), 5, isMobile ? 26 : 32);
+          ctx.restore();
+        }
+
+        // 4. Composite organic cotton fibers, tiny natural flecks & paper tooth across the sheet
+        if (paperFiberPattern) {
+          ctx.save();
+          ctx.globalAlpha = 0.88;
+          ctx.fillStyle = paperFiberPattern;
+          ctx.fillRect(0, 0, vw, vh);
+          ctx.restore();
+        }
       }
 
       // -----------------------------------------------------------------------
       // 7. ANIMATION LOOP (Smooth Damped Lerp for Sliding Pill Carriage)
       // -----------------------------------------------------------------------
       function animateLoop() {
-        // Smooth damped interpolation (lerp) for horizontal pill carriage motion
         const dx = state.targetCarriageX - state.currentCarriageX;
         if (Math.abs(dx) > 0.1) {
           state.currentCarriageX += dx * 0.25;
@@ -1361,7 +1582,6 @@
           state.currentCarriageX = state.targetCarriageX;
         }
 
-        // Smooth vertical paper scroll interpolation
         const dy = state.targetPaperY - state.currentPaperY;
         if (Math.abs(dy) > 0.1) {
           state.currentPaperY += dy * 0.24;
@@ -1380,16 +1600,36 @@
       // -----------------------------------------------------------------------
       // 8. TYPEWRITER MECHANICAL ACTIONS (Strike, Backspace, Return, Wrap)
       // -----------------------------------------------------------------------
+      let ledPulseTimer = null;
+      let marginBellFlashTimer = null;
+
       function triggerPhysicalStrikeAnimation() {
         dom.strikerPin.classList.remove('striking');
         dom.pillBody.classList.remove('jolting');
         dom.strikeSpark.classList.remove('active');
+        dom.led2.classList.add('pulsing');
 
         void dom.strikerPin.offsetWidth;
 
         dom.strikerPin.classList.add('striking');
         dom.pillBody.classList.add('jolting');
         dom.strikeSpark.classList.add('active');
+
+        if (ledPulseTimer) clearTimeout(ledPulseTimer);
+        ledPulseTimer = setTimeout(() => {
+          dom.led2.classList.remove('pulsing');
+        }, 120);
+      }
+
+      function flashMarginBellLED() {
+        dom.led3.classList.add('margin-warning');
+        if (marginBellFlashTimer) clearTimeout(marginBellFlashTimer);
+        marginBellFlashTimer = setTimeout(() => {
+          const remainingCols = state.maxCols - state.cursorCol;
+          if (remainingCols > 5) {
+            dom.led3.classList.remove('margin-warning');
+          }
+        }, 320);
       }
 
       function closeAllPopovers() {
@@ -1398,9 +1638,6 @@
 
       function stampCharacter(char) {
         closeAllPopovers();
-
-        // Clear the initial faint half-struck "r" once the user begins typing
-        state.ghostChar = '';
         state.paperScrollOffsetLines = 0;
 
         const currentLine = state.lines[state.currentLineIndex];
@@ -1433,8 +1670,8 @@
 
         state.cursorCol++;
 
-        // Classic brass margin bell 6 characters before the right margin
-        if (state.maxCols - state.cursorCol === 6) {
+        // Classic brass margin bell 5 characters before the right margin collar
+        if (state.maxCols - state.cursorCol === 5) {
           audio.playMarginBell();
         }
 
@@ -1450,7 +1687,8 @@
       function handleAutoWordWrap() {
         const currentLine = state.lines[state.currentLineIndex];
         let splitIdx = -1;
-        for (let i = currentLine.cells.length - 1; i >= Math.max(0, currentLine.cells.length - 14); i--) {
+        const lookbackLimit = Math.min(14, Math.floor(state.maxCols * 0.45));
+        for (let i = currentLine.cells.length - 1; i >= Math.max(0, currentLine.cells.length - lookbackLimit); i--) {
           if (currentLine.cells[i] && currentLine.cells[i].char === ' ') {
             splitIdx = i;
             break;
@@ -1459,8 +1697,8 @@
 
         let carriedCells = [];
         if (splitIdx !== -1 && splitIdx < currentLine.cells.length - 1) {
-          carriedCells = currentLine.cells.splice(splitIdx + 1);
-          currentLine.cells.splice(splitIdx, 1);
+          carriedCells = currentLine.cells.slice(splitIdx + 1);
+          currentLine.cells = currentLine.cells.slice(0, splitIdx);
         }
 
         state.currentLineIndex++;
@@ -1474,6 +1712,7 @@
         state.cursorCol = carriedCells.length;
 
         audio.playCarriageReturn(prevCol);
+        flashMarginBellLED();
         updateTargetCoordinates(false);
         renderPaperDOM();
         saveToStorage();
@@ -1481,7 +1720,6 @@
 
       function performCarriageReturn() {
         closeAllPopovers();
-        state.ghostChar = '';
         state.paperScrollOffsetLines = 0;
 
         const prevCol = state.cursorCol;
@@ -1495,6 +1733,7 @@
 
         state.cursorCol = 0;
         audio.playCarriageReturn(Math.max(8, prevCol));
+        flashMarginBellLED();
 
         updateTargetCoordinates(false);
         renderPaperDOM();
@@ -1503,7 +1742,6 @@
 
       function performBackspace() {
         closeAllPopovers();
-        state.ghostChar = '';
         state.paperScrollOffsetLines = 0;
 
         const currentLine = state.lines[state.currentLineIndex];
@@ -1627,10 +1865,64 @@
         dom.hiddenInput.value = '';
       });
 
+      function dismissTouchPrompt() {
+        if (!dom.touchPrompt.classList.contains('hidden')) {
+          dom.touchPrompt.classList.add('opacity-0');
+          setTimeout(() => {
+            dom.touchPrompt.classList.add('hidden');
+          }, 500);
+        }
+      }
+
       dom.stage.addEventListener('click', () => {
         closeAllPopovers();
+        dismissTouchPrompt();
         dom.hiddenInput.focus({ preventScroll: true });
       });
+
+      // Mobile Soft Keyboard Toggle Button
+      dom.quickKbdBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        dismissTouchPrompt();
+        if (document.activeElement === dom.hiddenInput) {
+          dom.hiddenInput.blur();
+          showToast('Keyboard hidden');
+        } else {
+          dom.hiddenInput.focus({ preventScroll: true });
+        }
+      });
+
+      // Touch drag/swipe vertically on paper to review earlier typed lines
+      let touchStartY = null;
+      let touchMoved = false;
+
+      dom.stage.addEventListener('touchstart', (e) => {
+        if (e.target.closest('#minimal-hud')) return;
+        if (e.touches && e.touches.length === 1) {
+          touchStartY = e.touches[0].clientY;
+          touchMoved = false;
+        }
+      }, { passive: true });
+
+      dom.stage.addEventListener('touchmove', (e) => {
+        if (touchStartY === null || !e.touches || e.touches.length !== 1) return;
+        const deltaY = e.touches[0].clientY - touchStartY;
+        if (Math.abs(deltaY) > 16) {
+          touchMoved = true;
+          scrollPaperHistory(deltaY / state.lineHeight);
+          touchStartY = e.touches[0].clientY;
+        }
+      }, { passive: true });
+
+      dom.stage.addEventListener('touchend', (e) => {
+        if (e.target.closest('#minimal-hud')) return;
+        if (!touchMoved) {
+          closeAllPopovers();
+          dismissTouchPrompt();
+          dom.hiddenInput.focus({ preventScroll: true });
+        }
+        touchStartY = null;
+      }, { passive: true });
 
       function scrollPaperHistory(deltaLines) {
         const maxScrollBack = Math.max(0, state.currentLineIndex);
@@ -1638,7 +1930,7 @@
           -2,
           Math.min(maxScrollBack, state.paperScrollOffsetLines + deltaLines)
         );
-        if (nextOffset !== state.paperScrollOffsetLines) {
+        if (Math.abs(nextOffset - state.paperScrollOffsetLines) > 0.05) {
           state.paperScrollOffsetLines = nextOffset;
           audio.playPaperScrollRustle();
           updateTargetCoordinates(false);
@@ -1655,6 +1947,16 @@
       window.addEventListener('resize', () => {
         measureLayoutMetrics();
       });
+
+      // Adapt thick bar, collars, pill carriage & baseline smoothly when mobile keyboard opens/closes
+      if (window.visualViewport) {
+        window.visualViewport.addEventListener('resize', () => {
+          measureLayoutMetrics();
+        });
+        window.visualViewport.addEventListener('scroll', () => {
+          measureLayoutMetrics();
+        });
+      }
 
       // -----------------------------------------------------------------------
       // 10. TOP-RIGHT DISCREET HOVER PILL CONTROLS
@@ -1674,13 +1976,12 @@
         document.documentElement.style.setProperty('--paper-base', t.paperBase);
         document.documentElement.style.setProperty('--ink-color', t.inkColor);
         dom.paperBackdrop.style.backgroundColor = t.paperBase;
-        document.body.classList.toggle('theme-dark', themeKey === 'dark');
 
         document.querySelectorAll('.theme-btn').forEach((btn) => {
           const active = btn.getAttribute('data-theme') === themeKey;
           btn.className = active
-            ? 'theme-btn px-2.5 py-1 rounded-lg text-[11px] bg-white/15 text-white font-medium text-left flex items-center gap-1.5'
-            : 'theme-btn px-2.5 py-1 rounded-lg text-[11px] bg-white/5 hover:bg-white/10 text-slate-300 text-left flex items-center gap-1.5';
+            ? 'theme-btn min-h-[36px] px-2.5 py-1 rounded-lg text-[11px] bg-white/15 text-white font-medium text-left flex items-center gap-1.5'
+            : 'theme-btn min-h-[36px] px-2.5 py-1 rounded-lg text-[11px] bg-white/5 hover:bg-white/10 text-slate-300 text-left flex items-center gap-1.5';
         });
 
         saveToStorage();
@@ -1692,7 +1993,7 @@
         });
       });
 
-      // Lamp Brightness Slider
+      // Lamp Brightness Slider (25% - 120%)
       dom.sliderIntensity.addEventListener('input', (e) => {
         state.lampIntensity = parseFloat(e.target.value);
         dom.valIntensity.textContent = `${Math.round(state.lampIntensity * 100)}%`;
@@ -1706,8 +2007,8 @@
           document.documentElement.style.setProperty('--font-typewriter', state.fontFamily);
           document.querySelectorAll('.font-btn').forEach((b) => {
             b.className = b === btn
-              ? 'font-btn px-2 py-1 rounded bg-white/15 text-white text-[11px]'
-              : 'font-btn px-2 py-1 rounded bg-white/5 hover:bg-white/10 text-slate-300 text-[11px]';
+              ? 'font-btn min-h-[36px] px-2 py-1 rounded bg-white/15 text-white text-[11px]'
+              : 'font-btn min-h-[36px] px-2 py-1 rounded bg-white/5 hover:bg-white/10 text-slate-300 text-[11px]';
           });
           measureLayoutMetrics();
           saveToStorage();
@@ -1719,7 +2020,6 @@
         dom.quickAudioBtn.textContent = state.mechSoundEnabled ? 'Keys: On' : 'Keys: Off';
         dom.quickAudioBtn.classList.toggle('text-slate-200', state.mechSoundEnabled);
         dom.quickAudioBtn.classList.toggle('text-slate-500', !state.mechSoundEnabled);
-        dom.led2.style.opacity = state.mechSoundEnabled ? '1' : '0.25';
       }
 
       dom.quickAudioBtn.addEventListener('click', () => {
@@ -1746,11 +2046,11 @@
       function updateCorrectionModeUI() {
         const isRibbon = state.correctionMode === 'ribbon';
         dom.modeRibbon.className = isRibbon
-          ? 'px-2 py-1 rounded-lg text-[11px] bg-white/15 text-white font-medium'
-          : 'px-2 py-1 rounded-lg text-[11px] bg-white/5 hover:bg-white/10 text-slate-300';
+          ? 'min-h-[36px] px-2 py-1 rounded-lg text-[11px] bg-white/15 text-white font-medium'
+          : 'min-h-[36px] px-2 py-1 rounded-lg text-[11px] bg-white/5 hover:bg-white/10 text-slate-300';
         dom.modeOverstrike.className = !isRibbon
-          ? 'px-2 py-1 rounded-lg text-[11px] bg-white/15 text-white font-medium'
-          : 'px-2 py-1 rounded-lg text-[11px] bg-white/5 hover:bg-white/10 text-slate-300';
+          ? 'min-h-[36px] px-2 py-1 rounded-lg text-[11px] bg-white/15 text-white font-medium'
+          : 'min-h-[36px] px-2 py-1 rounded-lg text-[11px] bg-white/5 hover:bg-white/10 text-slate-300';
       }
 
       dom.modeRibbon.addEventListener('click', () => {
@@ -1781,6 +2081,7 @@
       function animatePaperChange(callback) {
         closeAllPopovers();
         audio.playCarriageReturn(26);
+        flashMarginBellLED();
         dom.paperSheet.classList.add('paper-ejecting');
         setTimeout(() => {
           callback();
@@ -1806,7 +2107,6 @@
           state.lines = [createEmptyLine()];
           state.currentLineIndex = 0;
           state.cursorCol = 0;
-          state.ghostChar = '';
           state.paperScrollOffsetLines = 0;
         });
         showToast('Fresh sheet loaded');
@@ -1863,11 +2163,24 @@
         updateCorrectionModeUI();
         updateAudioUI();
 
+        // Configure touch-friendly HUD & auto-fading mobile prompt on touch devices
+        state.isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+        if (state.isTouchDevice) {
+          dom.hud.classList.remove('opacity-25');
+          dom.hud.classList.add('opacity-65');
+          dom.quickKbdBtn.classList.remove('hidden');
+          dom.quickKbdBtn.classList.add('flex');
+          dom.touchPrompt.classList.remove('hidden');
+          setTimeout(dismissTouchPrompt, 4500);
+        }
+
         measureLayoutMetrics();
         updateTargetCoordinates(true);
         animateLoop();
 
-        dom.hiddenInput.focus({ preventScroll: true });
+        if (!state.isTouchDevice) {
+          dom.hiddenInput.focus({ preventScroll: true });
+        }
       };
     })();
   </script>
