@@ -73,6 +73,9 @@ window.Lumen = window.Lumen || {};
     themeKey: 'white',
     lampIntensity: 0.85,
     coneSpreadDeg: 112,
+    fontScale: 1,
+    lineSpacing: 1,
+    fontPx: 20,
     fontFamily: "'Courier Prime', monospace",
 
     // Audio & Mechanics settings
@@ -123,6 +126,11 @@ window.Lumen = window.Lumen || {};
       actionResetScene: document.getElementById('action-reset-scene'),
       actionNewSheet: document.getElementById('action-new-sheet'),
       actionExportTxt: document.getElementById('action-export-txt'),
+      sliderKeyVol: document.getElementById('slider-keyvol'),
+      valKeyVol: document.getElementById('val-keyvol'),
+      sliderRainVol: document.getElementById('slider-rainvol'),
+      valRainVol: document.getElementById('val-rainvol'),
+      metaThemeColor: document.getElementById('meta-theme-color'),
       actionCopyText: document.getElementById('action-copy-text')
     };
 

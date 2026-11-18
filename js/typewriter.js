@@ -92,6 +92,10 @@ window.Lumen = window.Lumen || {};
           state.correctionMode = parsed.correctionMode;
         }
         if (typeof parsed.mechSoundEnabled === 'boolean') state.mechSoundEnabled = parsed.mechSoundEnabled;
+        if ([0.85, 1, 1.25].includes(parsed.fontScale)) state.fontScale = parsed.fontScale;
+        if ([1, 1.5, 2].includes(parsed.lineSpacing)) state.lineSpacing = parsed.lineSpacing;
+        if (typeof parsed.mechVolume === 'number') state.mechVolume = Math.max(0, Math.min(1, parsed.mechVolume));
+        if (typeof parsed.rainVolume === 'number') state.rainVolume = Math.max(0, Math.min(1, parsed.rainVolume));
       } else {
         initDefaultScene();
       }
@@ -118,7 +122,11 @@ window.Lumen = window.Lumen || {};
         lampIntensity: state.lampIntensity,
         fontFamily: state.fontFamily,
         correctionMode: state.correctionMode,
-        mechSoundEnabled: state.mechSoundEnabled
+        mechSoundEnabled: state.mechSoundEnabled,
+        fontScale: state.fontScale,
+        lineSpacing: state.lineSpacing,
+        mechVolume: state.mechVolume,
+        rainVolume: state.rainVolume
       };
       localStorage.setItem(Lumen.STORAGE_KEY, JSON.stringify(payload));
     } catch (err) {
@@ -152,7 +160,8 @@ window.Lumen = window.Lumen || {};
     const probe = document.createElement('span');
     probe.className = 'typewriter-text';
     probe.style.fontFamily = state.fontFamily;
-    probe.style.fontSize = isMobile ? '16px' : '20px';
+    state.fontPx = (isMobile ? 16 : 20) * state.fontScale;
+    probe.style.fontSize = `${state.fontPx}px`;
     probe.style.position = 'absolute';
     probe.style.visibility = 'hidden';
     probe.textContent = 'MMMMMMMMMM';
@@ -161,7 +170,7 @@ window.Lumen = window.Lumen || {};
     document.body.removeChild(probe);
 
     state.charWidth = measuredCharW || (isMobile ? 9.6 : 12.0);
-    state.lineHeight = isMobile ? 28 : 34;
+    state.lineHeight = Math.round(state.fontPx * 1.7 * state.lineSpacing);
 
     // Responsive margins leaving room for the cylindrical margin clamp collars
     const collarWidth = isMobile ? 13 : 16;

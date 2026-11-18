@@ -102,6 +102,7 @@ window.Lumen = window.Lumen || {};
       Lumen.dom.paperBackdrop.style.backgroundColor = t.paperBase;
     }
     Lumen.spotlightDirty = true;
+    if (Lumen.dom.metaThemeColor) Lumen.dom.metaThemeColor.setAttribute('content', t.paperBase);
 
     document.querySelectorAll('.theme-btn').forEach((btn) => {
       const active = btn.getAttribute('data-theme') === themeKey;
@@ -156,6 +157,28 @@ window.Lumen = window.Lumen || {};
         }
       }).catch(() => {});
     }
+  }
+
+  const ACTIVE_OPT = 'opt-btn min-h-[36px] px-2 py-1 rounded-lg text-[11px] bg-white/15 text-white font-medium';
+  const IDLE_OPT = 'opt-btn min-h-[36px] px-2 py-1 rounded-lg text-[11px] bg-white/5 hover:bg-white/10 text-slate-300';
+
+  function updateOptionGroups() {
+    const state = Lumen.state;
+    document.querySelectorAll('[data-size]').forEach((b) => {
+      const on = parseFloat(b.getAttribute('data-size')) === state.fontScale;
+      b.setAttribute('aria-pressed', String(on));
+      b.className = on ? ACTIVE_OPT : IDLE_OPT;
+    });
+    document.querySelectorAll('[data-spacing]').forEach((b) => {
+      const on = parseFloat(b.getAttribute('data-spacing')) === state.lineSpacing;
+      b.setAttribute('aria-pressed', String(on));
+      b.className = on ? ACTIVE_OPT : IDLE_OPT;
+    });
+    const d = Lumen.dom;
+    if (d.sliderKeyVol) d.sliderKeyVol.value = state.mechVolume;
+    if (d.valKeyVol) d.valKeyVol.textContent = `${Math.round(state.mechVolume * 100)}%`;
+    if (d.sliderRainVol) d.sliderRainVol.value = state.rainVolume;
+    if (d.valRainVol) d.valRainVol.textContent = `${Math.round(state.rainVolume * 100)}%`;
   }
 
   function updateCorrectionModeUI() {
@@ -423,6 +446,44 @@ window.Lumen = window.Lumen || {};
       });
     }
 
+    // Text size & line spacing
+    document.querySelectorAll('[data-size]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        state.fontScale = parseFloat(btn.getAttribute('data-size'));
+        updateOptionGroups();
+        if (Lumen.measureLayoutMetrics) Lumen.measureLayoutMetrics();
+        if (Lumen.saveToStorage) Lumen.saveToStorage();
+      });
+    });
+    document.querySelectorAll('[data-spacing]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        state.lineSpacing = parseFloat(btn.getAttribute('data-spacing'));
+        updateOptionGroups();
+        if (Lumen.measureLayoutMetrics) Lumen.measureLayoutMetrics();
+        if (Lumen.saveToStorage) Lumen.saveToStorage();
+      });
+    });
+
+    // Volume sliders
+    if (dom.sliderKeyVol) {
+      dom.sliderKeyVol.addEventListener('input', (e) => {
+        state.mechVolume = parseFloat(e.target.value);
+        updateOptionGroups();
+        if (Lumen.saveToStorage) Lumen.saveToStorage();
+      });
+      dom.sliderKeyVol.addEventListener('change', () => {
+        if (Lumen.audio) Lumen.audio.playKeyStrike(false); // audible preview
+      });
+    }
+    if (dom.sliderRainVol) {
+      dom.sliderRainVol.addEventListener('input', (e) => {
+        state.rainVolume = parseFloat(e.target.value);
+        if (Lumen.audio) Lumen.audio.updateRainVolume(state.rainVolume);
+        updateOptionGroups();
+        if (Lumen.saveToStorage) Lumen.saveToStorage();
+      });
+    }
+
     // Typeface Buttons
     document.querySelectorAll('.font-btn').forEach((btn) => {
       btn.addEventListener('click', () => {
@@ -571,6 +632,7 @@ window.Lumen = window.Lumen || {};
 
     updateCorrectionModeUI();
     updateAudioUI();
+    updateOptionGroups();
 
     // Configure touch-friendly HUD & auto-fading mobile prompt on touch devices
     Lumen.state.isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);

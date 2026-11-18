@@ -460,3 +460,12 @@ input[type="range"].tactile-slider::-webkit-slider-thumb {
   outline: 2px solid #fcd34d;
   outline-offset: 2px;
 }
+
+/* Notch / home-indicator safe areas on phones */
+#minimal-hud {
+  margin-top: env(safe-area-inset-top, 0px);
+  margin-right: env(safe-area-inset-right, 0px);
+}
+#toast-box {
+  margin-bottom: env(safe-area-inset-bottom, 0px);
+}

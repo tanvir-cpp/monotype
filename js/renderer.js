@@ -95,7 +95,7 @@ window.Lumen = window.Lumen || {};
     const state = Lumen.state;
     const vw = window.innerWidth;
     const isMobile = vw < 640;
-    const fontSize = isMobile ? '16px' : '20px';
+    const fontSize = `${state.fontPx || (isMobile ? 16 : 20)}px`;
 
     if (!dom.linesContainer) return;
     dom.linesContainer.innerHTML = '';
