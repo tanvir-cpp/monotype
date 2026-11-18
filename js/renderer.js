@@ -172,60 +172,27 @@ window.Lumen = window.Lumen || {};
   // -------------------------------------------------------------------------
   // Calibrated ~112-Degree Warm V-Cone Lighting & Fibrous Paper Texture
   // -------------------------------------------------------------------------
-  function renderVolumetricSpotlight() {
-    const ctx = Lumen.ctx;
-    if (!ctx) return;
+  // Paints vignette + warm lamp cone. Shared by the live canvas and the PNG export.
+  // o: { vw, vh, railY, originX, vigX, theme, intensity, isMobile, coneSpreadDeg }
+  function paintSpotlight(ctx, o) {
+    const { vw, vh, railY, originX, vigX, theme, intensity, isMobile, coneSpreadDeg } = o;
 
-    const state = Lumen.state;
-    const dom = Lumen.dom;
-    const vw = window.innerWidth;
-    const vh = window.innerHeight;
-    const isMobile = vw < 640;
-    const theme = Lumen.THEMES[state.themeKey] || Lumen.THEMES.standard;
-
-    // Skip the expensive repaint when nothing visible has changed
-    const sig = [vw, vh, state.railY, state.currentCarriageX.toFixed(1), state.lampIntensity,
-      state.themeKey, state.coneSpreadDeg, !!paperFiberPattern].join('|');
-    if (sig === Lumen.lastSpotlightSig && !Lumen.spotlightDirty) return;
-    Lumen.lastSpotlightSig = sig;
-    Lumen.spotlightDirty = false;
-
-    ctx.clearRect(0, 0, vw, vh);
-
-    // 1. Subtle peripheral stone-taupe vignette on outer unlit edges
-    // Shade pools around the lamp rather than the screen centre, so lit and
-    // unlit areas stay balanced wherever the carriage is
-    const vigX = state.currentCarriageX * 0.6 + vw * 0.5 * 0.4;
-    const edgeGrad = ctx.createRadialGradient(
-      vigX,
-      vh * 0.45,
-      vh * 0.22,
-      vigX,
-      vh * 0.45,
-      Math.max(vw, vh) * 0.8
-    );
+    // 1. Peripheral shade pooled around the lamp so lit/unlit areas stay balanced
+    const edgeGrad = ctx.createRadialGradient(vigX, vh * 0.45, vh * 0.22, vigX, vh * 0.45, Math.max(vw, vh) * 0.8);
     edgeGrad.addColorStop(0, 'rgba(0, 0, 0, 0)');
     edgeGrad.addColorStop(1, theme.vignetteEdge);
     ctx.fillStyle = edgeGrad;
     ctx.fillRect(0, 0, vw, vh);
 
-    const intensity = state.lampIntensity;
-    const originX = state.currentCarriageX;
     // Light originates strictly from the top amber light slot of the pill carriage
-    const pillTopOffset = isMobile ? 16 : 20;
-    const emitterY = state.railY - pillTopOffset;
-
-    // Scale top amber slot bloom subtly with Lamp Brightness
-    if (dom.amberSlot) {
-      dom.amberSlot.style.opacity = Math.max(0.35, Math.min(1, 0.35 + intensity * 0.65)).toFixed(2);
-    }
+    const emitterY = railY - (isMobile ? 16 : 20);
 
     if (intensity > 0.02) {
-      const [cr, cg, cb] = theme.coneCore;   // Warm cream-parchment (#f4dfb6)
-      const [mr, mg, mb] = theme.coneMid;    // Warm sand (#ccb790)
-      const [or, og, ob] = theme.coneOuter;  // Muted taupe (#8a7f6d)
+      const [cr, cg, cb] = theme.coneCore;
+      const [mr, mg, mb] = theme.coneMid;
+      const [or, og, ob] = theme.coneOuter;
 
-      // 2. Broad ~112-degree V-shaped warm tungsten spotlight cone projecting upward
+      // 2. Broad warm V-shaped spotlight cone projecting upward
       ctx.save();
       ctx.beginPath();
       ctx.rect(0, 0, vw, emitterY + 4);
@@ -233,11 +200,10 @@ window.Lumen = window.Lumen || {};
 
       const radiusScale = 0.72 + intensity * 0.36;
       const coneHeight = Math.max(vh * 0.72, 360) * radiusScale;
-      const halfAngleRad = ((state.coneSpreadDeg / 2) * Math.PI) / 180; // 56 deg each side = 112 deg total
+      const halfAngleRad = ((coneSpreadDeg / 2) * Math.PI) / 180;
       const topHalfWidth = Math.tan(halfAngleRad) * coneHeight;
       const slotHalfW = isMobile ? 9 : 11;
 
-      // Build clean V-wedge with softly feathered angular edges matching the reference photo
       ctx.beginPath();
       ctx.moveTo(originX - slotHalfW, emitterY + 2);
       ctx.lineTo(originX - topHalfWidth, emitterY - coneHeight);
@@ -248,12 +214,8 @@ window.Lumen = window.Lumen || {};
       ctx.filter = 'blur(16px)';
 
       const coneGrad = ctx.createRadialGradient(
-        originX,
-        emitterY - 4,
-        4,
-        originX,
-        emitterY - coneHeight * 0.25,
-        coneHeight * 0.88
+        originX, emitterY - 4, 4,
+        originX, emitterY - coneHeight * 0.25, coneHeight * 0.88
       );
 
       const coreAlpha = Math.min(0.96, 0.24 + intensity * 0.74);
@@ -269,18 +231,50 @@ window.Lumen = window.Lumen || {};
       ctx.fill();
       ctx.restore();
 
-      // 3. Subtle soft shadow cast by the T-striker stem onto the lit paper right behind it
+      // 3. Soft shadow cast by the T-striker stem onto the lit paper
       ctx.save();
       ctx.filter = 'blur(3.5px)';
-      const stemShadowGrad = ctx.createLinearGradient(0, emitterY, 0, emitterY - (isMobile ? 26 : 32));
+      const sh = isMobile ? 26 : 32;
+      const stemShadowGrad = ctx.createLinearGradient(0, emitterY, 0, emitterY - sh);
       stemShadowGrad.addColorStop(0, `rgba(38, 34, 28, ${0.26 * Math.min(1, intensity)})`);
       stemShadowGrad.addColorStop(1, 'rgba(38, 34, 28, 0)');
       ctx.fillStyle = stemShadowGrad;
-      ctx.fillRect(originX - 2.5, emitterY - (isMobile ? 26 : 32), 5, isMobile ? 26 : 32);
+      ctx.fillRect(originX - 2.5, emitterY - sh, 5, sh);
       ctx.restore();
     }
+  }
 
-    // 4. Composite organic cotton fibers, tiny natural flecks & paper tooth across the sheet
+  function renderVolumetricSpotlight() {
+    const ctx = Lumen.ctx;
+    if (!ctx) return;
+
+    const state = Lumen.state;
+    const dom = Lumen.dom;
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const isMobile = vw < 640;
+    const theme = Lumen.THEMES[state.themeKey] || Lumen.THEMES.white;
+
+    // Scale top amber slot bloom subtly with Lamp Brightness
+    if (dom.amberSlot) {
+      dom.amberSlot.style.opacity = Math.max(0.35, Math.min(1, 0.35 + state.lampIntensity * 0.65)).toFixed(2);
+    }
+
+    // Skip the expensive repaint when nothing visible has changed
+    const sig = [vw, vh, state.railY, state.currentCarriageX.toFixed(1), state.lampIntensity,
+      state.themeKey, state.coneSpreadDeg, !!paperFiberPattern].join('|');
+    if (sig === Lumen.lastSpotlightSig && !Lumen.spotlightDirty) return;
+    Lumen.lastSpotlightSig = sig;
+    Lumen.spotlightDirty = false;
+
+    ctx.clearRect(0, 0, vw, vh);
+    paintSpotlight(ctx, {
+      vw, vh, railY: state.railY, originX: state.currentCarriageX,
+      vigX: state.currentCarriageX * 0.6 + vw * 0.2,
+      theme, intensity: state.lampIntensity, isMobile, coneSpreadDeg: state.coneSpreadDeg
+    });
+
+    // Composite organic cotton fibers, tiny natural flecks & paper tooth across the sheet
     if (paperFiberPattern) {
       ctx.save();
       ctx.globalAlpha = theme.light ? 0.55 : 0.88;
@@ -290,10 +284,113 @@ window.Lumen = window.Lumen || {};
     }
   }
 
+  function roundRectPath(ctx, x, y, w, h, r) {
+    r = Math.min(r, w / 2, h / 2);
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  }
+
+  // Draws the rail, margin collars and the pill carriage with striker for PNG export
+  function drawTypewriterMachine(ctx, o) {
+    const { width, height, railY, originX, padX, cw, state } = o;
+
+    // Platen shade below the rail
+    const below = ctx.createLinearGradient(0, railY, 0, height);
+    below.addColorStop(0, 'rgba(10,10,12,0.22)');
+    below.addColorStop(0.2, 'rgba(10,10,12,0.05)');
+    below.addColorStop(1, 'rgba(8,8,10,0.08)');
+    ctx.fillStyle = below;
+    ctx.fillRect(0, railY, width, height - railY);
+
+    // Rail
+    ctx.save();
+    ctx.shadowColor = 'rgba(10,10,12,0.45)';
+    ctx.shadowBlur = 12;
+    ctx.shadowOffsetY = 5;
+    const rail = ctx.createLinearGradient(0, railY - 11, 0, railY + 11);
+    [[0, '#111215'], [0.14, '#222429'], [0.32, '#3f434a'], [0.46, '#35383f'],
+     [0.64, '#292c31'], [0.86, '#18191d'], [1, '#0c0d0f']].forEach(([p, c]) => rail.addColorStop(p, c));
+    ctx.fillStyle = rail;
+    ctx.fillRect(0, railY - 11, width, 22);
+    ctx.restore();
+    ctx.fillStyle = 'rgba(255,255,255,0.08)';
+    ctx.fillRect(0, railY - 11, width, 1);
+
+    // Margin collars
+    const collar = (x) => {
+      const g = ctx.createLinearGradient(0, railY - 14, 0, railY + 14);
+      g.addColorStop(0, '#141518'); g.addColorStop(0.28, '#2b2d32');
+      g.addColorStop(0.62, '#1e2024'); g.addColorStop(1, '#101114');
+      ctx.save();
+      ctx.shadowColor = 'rgba(8,8,10,0.55)';
+      ctx.shadowBlur = 8;
+      ctx.shadowOffsetY = 4;
+      ctx.fillStyle = g;
+      roundRectPath(ctx, x, railY - 14, 16, 28, 4);
+      ctx.fill();
+      ctx.restore();
+    };
+    collar(padX - 20);
+    collar(padX + state.maxCols * cw + 4);
+
+    // T-striker (shaft + head) above the pill
+    ctx.fillStyle = '#2a2c31';
+    ctx.fillRect(originX - 1.5, railY - 46, 3, 26);
+    ctx.fillStyle = '#383b42';
+    roundRectPath(ctx, originX - 11, railY - 50, 22, 6, 2);
+    ctx.fill();
+
+    // Pill body
+    ctx.save();
+    ctx.shadowColor = 'rgba(8,8,10,0.58)';
+    ctx.shadowBlur = 18;
+    ctx.shadowOffsetY = 8;
+    const pill = ctx.createLinearGradient(0, railY - 22, 0, railY + 22);
+    pill.addColorStop(0, '#484744'); pill.addColorStop(0.5, '#3a3937'); pill.addColorStop(1, '#2d2c2a');
+    ctx.fillStyle = pill;
+    roundRectPath(ctx, originX - 57, railY - 22, 114, 44, 22);
+    ctx.fill();
+    ctx.restore();
+    ctx.strokeStyle = 'rgba(22,21,20,0.85)';
+    ctx.lineWidth = 1;
+    roundRectPath(ctx, originX - 57, railY - 22, 114, 44, 22);
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(255,255,255,0.14)';
+    ctx.fillRect(originX - 40, railY - 21, 80, 1);
+
+    // Amber lamp slot with glow
+    ctx.save();
+    ctx.shadowColor = 'rgba(255,184,64,0.9)';
+    ctx.shadowBlur = 8;
+    const amber = ctx.createLinearGradient(0, railY - 20, 0, railY - 15);
+    amber.addColorStop(0, '#ffd27a'); amber.addColorStop(1, '#f59e0b');
+    ctx.fillStyle = amber;
+    roundRectPath(ctx, originX - 12, railY - 20, 24, 5, 2.5);
+    ctx.fill();
+    ctx.restore();
+
+    // Status LEDs
+    [[-27, '#5ee06a'], [-13, '#f5a524'], [1, '#17181a']].forEach(([dx, c], i) => {
+      ctx.save();
+      if (i < 2) { ctx.shadowColor = c; ctx.shadowBlur = 5; }
+      ctx.fillStyle = c;
+      ctx.beginPath();
+      ctx.arc(originX + dx, railY + 1, 3.6, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    });
+  }
+
   // -------------------------------------------------------------------------
   // PNG Export: draws the full page (not just the visible part) onto a canvas
   // -------------------------------------------------------------------------
-  function exportPagePNG() {
+  function exportPagePNG(opts) {
+    const machine = !opts || opts.machine !== false;
     const state = Lumen.state;
     const theme = Lumen.THEMES[state.themeKey] || Lumen.THEMES.white;
 
@@ -308,10 +405,11 @@ window.Lumen = window.Lumen || {};
     const cw = state.charWidth;
     const lh = state.lineHeight;
     const padX = Math.round(cw * 6);
-    const padY = Math.round(lh * 2.5);
+    const padY = machine ? Math.round(lh * 2) : Math.round(lh * 2.5);
     const widest = Math.max(state.maxCols, ...lines.map((l) => l.cells.length));
-    const width = Math.round(widest * cw + padX * 2);
-    const height = Math.round(lines.length * lh + padY * 2);
+    const width = Math.max(machine ? 640 : 0, Math.round(widest * cw + padX * 2));
+    const railY = padY + lines.length * lh + 56;      // typing baseline sits just above the rail
+    const height = machine ? railY + 110 : Math.round(lines.length * lh + padY * 2);
 
     const canvas = document.createElement('canvas');
     canvas.width = width * scale;
@@ -321,6 +419,16 @@ window.Lumen = window.Lumen || {};
 
     ctx.fillStyle = theme.paperBase;
     ctx.fillRect(0, 0, width, height);
+
+    const col = Math.min(state.cursorCol, state.maxCols);
+    const originX = Math.max(30, Math.min(width - 30, padX + col * cw + cw / 2));
+    if (machine) {
+      paintSpotlight(ctx, {
+        vw: width, vh: height, railY, originX,
+        vigX: originX * 0.6 + width * 0.2,
+        theme, intensity: state.lampIntensity, isMobile: false, coneSpreadDeg: state.coneSpreadDeg
+      });
+    }
     if (Lumen.paperFiberPattern) {
       ctx.save();
       ctx.globalAlpha = theme.light ? 0.55 : 0.88;
@@ -359,6 +467,8 @@ window.Lumen = window.Lumen || {};
           (cell.overstrikes || []).forEach((o) => drawGlyph(o.char, x, baseY, o));
         });
       });
+
+      if (machine) drawTypewriterMachine(ctx, { width, height, railY, originX, padX, cw, state });
 
       return new Promise((resolve) => {
         const fallback = () => {

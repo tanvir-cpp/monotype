@@ -137,6 +137,7 @@ window.Lumen = window.Lumen || {};
       modeOverstrike: document.getElementById('mode-overstrike'),
       actionResetScene: document.getElementById('action-reset-scene'),
       actionNewSheet: document.getElementById('action-new-sheet'),
+      actionExportPngPage: document.getElementById('action-export-png-page'),
       actionExportPng: document.getElementById('action-export-png'),
       actionExportTxt: document.getElementById('action-export-txt'),
       sliderKeyVol: document.getElementById('slider-keyvol'),

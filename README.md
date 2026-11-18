@@ -21,7 +21,7 @@ A tactile web typewriter. It has a sliding carriage, a warm lamp that lights the
 - **Personalise:** three typefaces, three text sizes, three line spacings, and key and rain volume.
 - **Works on phones:** touch-drag to scroll the page, an on-screen keyboard button and safe-area aware controls.
 - **Your page is kept:** text and settings are saved in your browser automatically.
-- **Take it with you:** export the whole page as a `.png` image or as `.txt`, copy to the clipboard, or paste text and watch it type itself out.
+- **Take it with you:** export the whole page as a `.png` image (with the typewriter and lamp, or page only) or as `.txt`, copy to the clipboard, or paste text and watch it type itself out.
 
 ## Screenshots
 

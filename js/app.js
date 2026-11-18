@@ -558,13 +558,14 @@ window.Lumen = window.Lumen || {};
       });
     }
 
-    // Export .png Button
-    if (dom.actionExportPng) {
-      dom.actionExportPng.addEventListener('click', () => {
+    // Export .png Buttons (with typewriter / page only)
+    const bindPngExport = (btn, withMachine) => {
+      if (!btn) return;
+      btn.addEventListener('click', () => {
         closeAllPopovers();
         if (!Lumen.exportPagePNG) { showToast('PNG export unavailable — hard refresh the page'); return; }
         showToast('Preparing image…');
-        Lumen.exportPagePNG().then((blob) => {
+        Lumen.exportPagePNG({ machine: withMachine }).then((blob) => {
           if (!blob) { showToast('Nothing to export'); return; }
           const url = URL.createObjectURL(blob);
           const a = document.createElement('a');
@@ -580,7 +581,9 @@ window.Lumen = window.Lumen || {};
           showToast('PNG export failed');
         });
       });
-    }
+    };
+    bindPngExport(dom.actionExportPng, true);
+    bindPngExport(dom.actionExportPngPage, false);
 
     // Export .txt Button
     if (dom.actionExportTxt) {
