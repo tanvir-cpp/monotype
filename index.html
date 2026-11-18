@@ -7,7 +7,9 @@
   <meta name="theme-color" content="#f6f4ee" id="meta-theme-color" />
   <meta name="mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
-  <title>LUMEN // Tactile Typewriter</title>
+  <title>Lumen — Tactile Typewriter</title>
+  <meta name="description" content="A tactile web typewriter with a warm lamp, realistic ink and mechanical sounds." />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23f6f4ee'/%3E%3Crect x='3' y='19' width='26' height='5' rx='2.5' fill='%23222429'/%3E%3Crect x='11' y='15' width='10' height='9' rx='4.5' fill='%23403d38'/%3E%3Cpath d='M13 8h6M16 8v7' stroke='%23222429' stroke-width='2.4' stroke-linecap='round'/%3E%3C/svg%3E" />
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <!-- Authentic Typewriter & UI Google Fonts -->
@@ -96,7 +98,7 @@
   <!-- TOUCH-FRIENDLY TOP-RIGHT HOVER PILL (0.25 desktop, 0.65 touch, 1.0 hover) -->
   <!-- ========================================================================= -->
   <div id="minimal-hud"
-    class="fixed top-3 right-3 sm:top-4 sm:right-5 z-50 max-w-[calc(100vw-24px)] transition-opacity duration-300 opacity-40 hover:opacity-100 focus-within:opacity-100"
+    class="fixed top-3 right-3 sm:top-4 sm:right-5 z-50 max-w-[calc(100vw-24px)] transition-opacity duration-300 opacity-70 hover:opacity-100 focus-within:opacity-100"
     style="cursor: default;">
     <div
       class="flex flex-wrap items-center justify-end gap-0.5 sm:gap-1 px-2 py-1 rounded-full hud-glass text-slate-200 text-[11px]">
@@ -160,7 +162,7 @@
 
     <!-- Discreet Settings Popover (Lamp Brightness 30%-120%, Paper Mode, Typeface, Overstrike) -->
     <div id="popover-settings" role="group" aria-label="Typewriter settings"
-      class="hidden absolute right-0 mt-2 w-64 max-w-[calc(100vw-24px)] max-h-[calc(100vh-72px)] overflow-y-auto p-3.5 rounded-2xl hud-glass text-slate-200 shadow-2xl space-y-3">
+      class="hidden absolute right-0 mt-2 w-72 max-w-[calc(100vw-24px)] max-h-[calc(100vh-72px)] overflow-y-auto p-3.5 rounded-2xl hud-glass text-slate-200 shadow-2xl space-y-3">
       <div class="flex items-center justify-between border-b border-white/10 pb-1.5">
         <span class="font-medium text-[11px] uppercase tracking-wider text-slate-300">Lamp & Mechanics</span>
         <span id="stats-counter" class="text-[10px] text-slate-400 font-mono">0 words</span>
@@ -179,18 +181,22 @@
       <!-- Paper Surface Mode (Stone Taupe #5c5852 vs Dim Room #2e2c29) -->
       <div>
         <label class="block text-[10px] uppercase tracking-wider text-slate-400 mb-1">Paper Surface</label>
-        <div class="grid grid-cols-3 gap-1.5">
+        <div class="grid grid-cols-2 gap-1.5">
           <button type="button" data-theme="white"
-            class="theme-btn min-h-[36px] px-2.5 py-1 rounded-lg text-[11px] bg-white/15 text-white font-medium text-left flex items-center gap-1.5">
-            <span class="w-2.5 h-2.5 rounded-full bg-[#f6f4ee] border border-white/40"></span> Bright White
+            class="theme-btn min-h-[40px] px-2.5 py-1 rounded-lg text-[11px] bg-white/5 hover:bg-white/10 text-slate-300 text-left flex items-center gap-2">
+            <span class="w-4 h-4 shrink-0 rounded-full border border-white/50" style="background:#f6f4ee"></span><span>Bright White</span>
+          </button>
+          <button type="button" data-theme="cream"
+            class="theme-btn min-h-[40px] px-2.5 py-1 rounded-lg text-[11px] bg-white/5 hover:bg-white/10 text-slate-300 text-left flex items-center gap-2">
+            <span class="w-4 h-4 shrink-0 rounded-full border border-white/50" style="background:#efe7d3"></span><span>Warm Cream</span>
           </button>
           <button type="button" data-theme="standard"
-            class="theme-btn min-h-[36px] px-2.5 py-1 rounded-lg text-[11px] bg-white/5 hover:bg-white/10 text-slate-300 text-left flex items-center gap-1.5">
-            <span class="w-2.5 h-2.5 rounded-full bg-[#5c5852] border border-white/40"></span> Fibrous Taupe
+            class="theme-btn min-h-[40px] px-2.5 py-1 rounded-lg text-[11px] bg-white/5 hover:bg-white/10 text-slate-300 text-left flex items-center gap-2">
+            <span class="w-4 h-4 shrink-0 rounded-full border border-white/50" style="background:#5c5852"></span><span>Fibrous Taupe</span>
           </button>
           <button type="button" data-theme="dark"
-            class="theme-btn min-h-[36px] px-2.5 py-1 rounded-lg text-[11px] bg-white/5 hover:bg-white/10 text-slate-300 text-left flex items-center gap-1.5">
-            <span class="w-2.5 h-2.5 rounded-full bg-[#2b2926] border border-white/40"></span> Dim Study
+            class="theme-btn min-h-[40px] px-2.5 py-1 rounded-lg text-[11px] bg-white/5 hover:bg-white/10 text-slate-300 text-left flex items-center gap-2">
+            <span class="w-4 h-4 shrink-0 rounded-full border border-white/50" style="background:#2b2926"></span><span>Dim Study</span>
           </button>
         </div>
       </div>

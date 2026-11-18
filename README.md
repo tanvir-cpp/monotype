@@ -1,8 +1,58 @@
 # LUMEN // Tactile Typewriter
 
-A skeuomorphic, highly tactile web typewriter simulator featuring real-time volumetric lighting, organic ink physics, and procedural Web Audio mechanical sound synthesis with zero external audio assets.
+A tactile web typewriter. It has a sliding carriage, a warm lamp that lights the page, ink that behaves like real ink, and mechanical sounds synthesised in the browser with no audio files.
 
-Live demo: [https://tanvir-cpp.github.io/monotype/](https://tanvir-cpp.github.io/monotype/)
+**Live demo:** https://tanvir-cpp.github.io/monotype/
+
+![Bright White paper on desktop](docs/screenshots/desktop-white.png)
+
+---
+
+## Features
+
+- **Realistic typing**
+  - Strike pressure depends on the character: periods are light, `M` and `W` hit hard.
+  - Every letter has a faint ink halo and sits slightly differently, like a worn typebar.
+  - The paper shudders on each strike.
+- **Warm lamp:** a volumetric cone of light follows the carriage across the page.
+- **Four paper surfaces:** Bright White (default), Warm Cream, Fibrous Taupe and Dim Study.
+- **Two correction modes:** *Lift-Off* removes the character like correction tape. *Overstrike* layers a new strike over the old one.
+- **Procedural sound:** key strikes, backspace ratchet, margin bell, carriage return and optional rain with distant thunder.
+- **Personalise:** three typefaces, three text sizes, three line spacings, and key and rain volume.
+- **Works on phones:** touch-drag to scroll the page, an on-screen keyboard button and safe-area aware controls.
+- **Your page is kept:** text and settings are saved in your browser automatically.
+- **Take it with you:** export as `.txt`, copy to the clipboard, or paste text and watch it type itself out.
+
+## Screenshots
+
+### Paper surfaces
+
+| Bright White | Warm Cream |
+| :---: | :---: |
+| ![Bright White](docs/screenshots/desktop-white.png) | ![Warm Cream](docs/screenshots/desktop-cream.png) |
+| **Fibrous Taupe** | **Dim Study** |
+| ![Fibrous Taupe](docs/screenshots/desktop-taupe.png) | ![Dim Study](docs/screenshots/desktop-dark.png) |
+
+### Settings panel and mobile
+
+| Settings | Mobile |
+| :---: | :---: |
+| ![Settings panel](docs/screenshots/settings.png) | <img src="docs/screenshots/mobile-white.png" width="280" alt="Mobile view"> |
+
+---
+
+## Controls
+
+| Action | Desktop | Mobile |
+| --- | --- | --- |
+| Type | Keyboard | Tap the page to open the keyboard |
+| New line | `Enter` | Return key |
+| Erase | `Backspace` | Backspace key |
+| Move carriage | `←` `→` | n/a |
+| Scroll back through the page | `↑` `↓` or mouse wheel | Drag up or down |
+| Close settings | `Esc` | Tap the page |
+
+Open **Lamp** in the top-right toolbar for lamp brightness, paper surface, typeface, text size, line spacing, volumes and backspace mode.
 
 ---
 
@@ -11,86 +61,30 @@ Live demo: [https://tanvir-cpp.github.io/monotype/](https://tanvir-cpp.github.io
 ```
 monotype/
 ├── css/
-│   └── style.css          # Skeuomorphic styling, mechanical animations & responsive layout
+│   └── style.css        # Rail, carriage, ink, HUD styling and animations
 ├── js/
-│   ├── config.js         # Themes, typography, state variables & DOM element cache
-│   ├── audio.js          # Procedural Web Audio engine (key strikes, bells, carriage, rain)
-│   ├── renderer.js       # Volumetric spotlight shader, fibrous paper texture & DOM ink rendering
-│   ├── typewriter.js     # Core mechanics, ink physics, margin collars & localStorage persistence
-│   └── app.js            # HUD controls, event listeners, animation loop & application bootstrap
-├── index.html            # Clean application entry point linking modular CSS & JS
-└── README.md             # Project documentation
+│   ├── config.js        # Themes, fonts, app state and DOM cache
+│   ├── audio.js         # Web Audio engine (strikes, bell, carriage, rain)
+│   ├── renderer.js      # Lamp cone, paper texture and ink rendering
+│   ├── typewriter.js    # Typing mechanics, ink physics, reflow and storage
+│   └── app.js           # Controls, event listeners and animation loop
+├── docs/
+│   └── screenshots/     # Images used in this README
+├── index.html           # Entry point
+└── README.md
 ```
-
----
-
-## Architectural Breakdown
-
-### 1. `css/style.css`
-
-- **Rail & Platen Mechanics**: Cylindrical gunmetal rail, margin clamp collars, and platen depth shadows.
-- **Carriage & Striker**: Physical T-striker hammer with upward impact snap, rebound keyframes, and micro-LED status indicators (ready green, strike pulse amber, margin warning red-orange).
-- **Ink & Typography**: Carbon-black typewriter ink typography with micro-rotations and fresh impression stamping animations.
-- **Glassmorphic HUD**: Mobile-responsive top-right controls with custom tactile range sliders.
-
-### 2. `js/config.js`
-
-- **Themes & Palettes**: Definitions for *Fibrous Taupe* and *Dim Study* (paper base, vignette colors, warm tungsten lighting gradients).
-- **Application State**: Coordinates (`railY`, `targetCarriageX`, `targetPaperY`), typing margins, font family, lamp intensity, and correction modes.
-- **DOM Cache**: Centralized DOM queries managed under the `Lumen.dom` namespace.
-
-### 3. `js/audio.js`
-
-- **Pure Procedural Audio Synthesis**: Generates all sounds dynamically using the browser's Web Audio API without downloading external audio files:
-  - **Hammer Strike**: Bandpass-filtered noise burst + pitch-swept triangle body oscillator + high-frequency resonant spring tail with pitch jitter.
-  - **Ratchet Tick**: Square-wave frequency sweep on backspace and arrow navigation.
-  - **Brass Margin Bell**: Inharmonic sinusoidal partials (2380 Hz, 4110 Hz, 6240 Hz) triggering near the right margin.
-  - **Carriage Return**: Rapid stepped ratchet clicks + roller line-feed clunk.
-  - **Rain & Thunder Soundscape**: Filtered continuous white/pink noise sculpted into windowpane rain with scheduled lowpass thunder rumbles.
-
-### 4. `js/renderer.js`
-
-- **Procedural Paper Texture**: Canvas generator creating seamless organic cotton micro-filaments, natural dark specks, and surface mineral tooth.
-- **Volumetric Spotlight Cone**: Dynamic ~112-degree warm tungsten radial cone projecting upward from the carriage amber slot onto the fibrous paper.
-- **DOM Ink Layer**: Generates individual character cells with organic jitter ($\pm 0.3\text{px}$ offset and micro-rotation).
-
-### 5. `js/typewriter.js`
-
-- **Typing Mechanics**: Character stamping, automatic word-wrap with lookback hyphenation, carriage return, and backspace.
-- **Dual Correction Modes**: Authentic *Lift-Off* (ribbon tape character erasure) and vintage *Overstrike* (layering physical ink strikes over existing letters).
-- **State Persistence**: Automatic syncing of manuscript text, theme, and lighting settings to `localStorage`.
-
-### 6. `js/app.js`
-
-- **Interaction Management**: Event listeners for physical keyboards, mobile soft keyboard bridges via `visualViewport`, touch drag paper scrolling, and mouse wheel navigation.
-- **HUD Settings**: Lamp brightness slider, theme switching, typeface switching (Courier Prime, Special Elite, IBM Plex Mono), audio toggles, and .txt manuscript export.
-- **Animation Loop**: Smooth damped lerp interpolation for sliding pill carriage and vertical paper feeding.
-
----
 
 ## Running Locally
 
-Because the project uses standard modular scripts with `defer`, you can run it in any of the following ways:
-
-### Option A: Open directly in your browser
-
-Simply double-click `index.html` or open `file:///path/to/monotype/index.html`.
-
-### Option B: Local HTTP Server
+No build step is needed. Open `index.html` in a browser, or serve the folder:
 
 ```bash
-# Using Python
 python3 -m http.server 8000
-
-# Using Node.js npx
-npx serve .
+# then visit http://localhost:8000
 ```
 
-Then visit `http://localhost:8000`.
-
----
+The page loads Tailwind CSS and Google Fonts from a CDN, so it needs an internet connection to look right.
 
 ## Deployment
 
-Changes to the `main` branch are automatically deployed to GitHub Pages at:
-[https://tanvir-cpp.github.io/monotype/](https://tanvir-cpp.github.io/monotype/)
+Pushes to `main` are published to GitHub Pages at https://tanvir-cpp.github.io/monotype/.

@@ -469,3 +469,11 @@ input[type="range"].tactile-slider::-webkit-slider-thumb {
 #toast-box {
   margin-bottom: env(safe-area-inset-bottom, 0px);
 }
+
+/* Keep the toolbar fully opaque while the settings panel is open */
+#minimal-hud.is-open {
+  opacity: 1 !important;
+}
+#popover-settings {
+  background: rgba(24, 23, 22, 0.97);
+}

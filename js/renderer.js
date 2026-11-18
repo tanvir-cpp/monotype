@@ -280,7 +280,7 @@ window.Lumen = window.Lumen || {};
     // 4. Composite organic cotton fibers, tiny natural flecks & paper tooth across the sheet
     if (paperFiberPattern) {
       ctx.save();
-      ctx.globalAlpha = state.themeKey === 'white' ? 0.55 : 0.88;
+      ctx.globalAlpha = theme.light ? 0.55 : 0.88;
       ctx.fillStyle = paperFiberPattern;
       ctx.fillRect(0, 0, vw, vh);
       ctx.restore();

@@ -60,6 +60,7 @@ window.Lumen = window.Lumen || {};
     if (Lumen.dom.btnSettings) {
       Lumen.dom.btnSettings.setAttribute('aria-expanded', 'false');
     }
+    if (Lumen.dom.hud) Lumen.dom.hud.classList.remove('is-open');
   }
 
   function isHudControl(target) {
@@ -108,8 +109,8 @@ window.Lumen = window.Lumen || {};
       const active = btn.getAttribute('data-theme') === themeKey;
       btn.setAttribute('aria-pressed', String(active));
       btn.className = active
-        ? 'theme-btn min-h-[36px] px-2.5 py-1 rounded-lg text-[11px] bg-white/15 text-white font-medium text-left flex items-center gap-1.5'
-        : 'theme-btn min-h-[36px] px-2.5 py-1 rounded-lg text-[11px] bg-white/5 hover:bg-white/10 text-slate-300 text-left flex items-center gap-1.5';
+        ? 'theme-btn min-h-[40px] px-2.5 py-1 rounded-lg text-[11px] bg-white/20 text-white font-medium text-left flex items-center gap-2 ring-1 ring-amber-300/70'
+        : 'theme-btn min-h-[40px] px-2.5 py-1 rounded-lg text-[11px] bg-white/5 hover:bg-white/10 text-slate-300 text-left flex items-center gap-2';
     });
 
     if (Lumen.saveToStorage) Lumen.saveToStorage();
@@ -420,6 +421,7 @@ window.Lumen = window.Lumen || {};
         if (dom.popoverSettings) {
           const nowHidden = dom.popoverSettings.classList.toggle('hidden');
           dom.btnSettings.setAttribute('aria-expanded', String(!nowHidden));
+          if (dom.hud) dom.hud.classList.toggle('is-open', !nowHidden);
         }
       });
     }

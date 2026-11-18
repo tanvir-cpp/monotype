@@ -83,7 +83,9 @@ window.Lumen = window.Lumen || {};
         state.currentLineIndex = Math.max(0, Math.min(idx, state.lines.length - 1));
         const col = Number.isFinite(parsed.cursorCol) ? parsed.cursorCol : 0;
         state.cursorCol = Math.max(0, Math.min(col, state.maxCols - 1));
-        if (parsed.themeKey && Lumen.THEMES[parsed.themeKey]) state.themeKey = parsed.themeKey;
+        if (parsed.themeVersion === 2 && parsed.themeKey && Lumen.THEMES[parsed.themeKey]) {
+          state.themeKey = parsed.themeKey;
+        } // older saves fall back to the new white default
         if (typeof parsed.lampIntensity === 'number' && isFinite(parsed.lampIntensity)) {
           state.lampIntensity = Math.max(0.25, Math.min(1.2, parsed.lampIntensity));
         }
@@ -119,6 +121,7 @@ window.Lumen = window.Lumen || {};
         currentLineIndex: state.currentLineIndex,
         cursorCol: state.cursorCol,
         themeKey: state.themeKey,
+        themeVersion: 2,
         lampIntensity: state.lampIntensity,
         fontFamily: state.fontFamily,
         correctionMode: state.correctionMode,
@@ -216,10 +219,42 @@ window.Lumen = window.Lumen || {};
       Lumen.buildFibrousPaperPattern();
     }
 
+    reflowLines();
     updateTargetCoordinates(false);
     if (Lumen.renderPaperDOM) {
       Lumen.renderPaperDOM();
     }
+  }
+
+  // Re-wrap any line that no longer fits after a resize, rotation or text-size change
+  function reflowLines() {
+    const state = Lumen.state;
+    const max = state.maxCols;
+    for (let i = 0; i < state.lines.length; i++) {
+      const line = state.lines[i];
+      if (line.cells.length <= max) continue;
+
+      let split = max;
+      for (let k = max; k > Math.floor(max * 0.5); k--) {
+        const c = line.cells[k - 1];
+        if (c && c.char === ' ') { split = k; break; }
+      }
+      const carried = line.cells.slice(split);
+      line.cells = line.cells.slice(0, split);
+      while (line.cells.length && line.cells[line.cells.length - 1] &&
+             line.cells[line.cells.length - 1].char === ' ' && line.cells.length > 1 && split !== max) {
+        line.cells.pop();
+      }
+      state.lines.splice(i + 1, 0, { cells: carried });
+
+      if (i < state.currentLineIndex) {
+        state.currentLineIndex++;
+      } else if (i === state.currentLineIndex && state.cursorCol >= split) {
+        state.currentLineIndex++;
+        state.cursorCol = Math.max(0, state.cursorCol - split);
+      }
+    }
+    state.cursorCol = Math.min(state.cursorCol, Math.max(0, max - 1));
   }
 
   function updateTargetCoordinates(immediate = false) {

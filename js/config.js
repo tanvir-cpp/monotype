@@ -19,6 +19,7 @@ window.Lumen = window.Lumen || {};
   Lumen.THEMES = {
     white: {
       name: 'Bright White',
+      light: true,
       paperBase: '#f6f4ee',
       vignetteEdge: 'rgba(120, 112, 98, 0.30)',
       inkColor: '#1b1a18',
@@ -26,6 +27,16 @@ window.Lumen = window.Lumen || {};
       coneCore: [255, 250, 232],
       coneMid: [250, 240, 212],
       coneOuter: [232, 222, 198]
+    },
+    cream: {
+      name: 'Warm Cream',
+      light: true,
+      paperBase: '#efe7d3',
+      vignetteEdge: 'rgba(130, 115, 90, 0.32)',
+      inkColor: '#1f1a14',
+      coneCore: [255, 247, 222],
+      coneMid: [247, 232, 196],
+      coneOuter: [226, 210, 176]
     },
     standard: {
       name: 'Fibrous Taupe',
