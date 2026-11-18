@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>LUMEN // Tactile Typewriter</title>
   <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -29,7 +29,7 @@
 
   <!-- Hidden mobile/IME input positioned near rail at 16px font-size to prevent iOS zoom/scroll jump -->
   <textarea id="hidden-typewriter-input" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
-    inputmode="text" aria-label="Typewriter Input" style="top: var(--rail-Y); font-size: 16px;"
+    inputmode="text" aria-label="Typewriter input — start typing" tabindex="-1" style="top: var(--rail-Y); font-size: 16px;"
     class="fixed left-1/2 -translate-x-1/2 opacity-0 w-8 h-8 pointer-events-none z-0"></textarea>
 
   <!-- Pure Flat 2D Viewport Stage -->
@@ -93,7 +93,7 @@
   <!-- TOUCH-FRIENDLY TOP-RIGHT HOVER PILL (0.25 desktop, 0.65 touch, 1.0 hover) -->
   <!-- ========================================================================= -->
   <div id="minimal-hud"
-    class="fixed top-3 right-3 sm:top-4 sm:right-5 z-50 max-w-[calc(100vw-24px)] transition-opacity duration-300 opacity-25 hover:opacity-100 focus-within:opacity-100"
+    class="fixed top-3 right-3 sm:top-4 sm:right-5 z-50 max-w-[calc(100vw-24px)] transition-opacity duration-300 opacity-40 hover:opacity-100 focus-within:opacity-100"
     style="cursor: default;">
     <div
       class="flex flex-wrap items-center justify-end gap-0.5 sm:gap-1 px-2 py-1 rounded-full hud-glass text-slate-200 text-[11px]">
@@ -110,7 +110,7 @@
       <!-- Lamp Brightness & Settings Popover Button -->
       <button id="btn-settings" type="button"
         class="flex items-center justify-center gap-1 min-w-[40px] min-h-[36px] sm:min-h-[32px] px-2.5 rounded-full hover:bg-white/10 active:bg-white/20 transition text-amber-300"
-        title="Lamp Brightness & Typewriter Settings">
+        title="Lamp Brightness & Typewriter Settings" aria-haspopup="true" aria-expanded="false" aria-controls="popover-settings">
         <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round"
             d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
@@ -156,11 +156,11 @@
     </div>
 
     <!-- Discreet Settings Popover (Lamp Brightness 30%-120%, Paper Mode, Typeface, Overstrike) -->
-    <div id="popover-settings"
-      class="hidden absolute right-0 mt-2 w-64 max-w-[calc(100vw-24px)] p-3.5 rounded-2xl hud-glass text-slate-200 shadow-2xl space-y-3">
+    <div id="popover-settings" role="group" aria-label="Typewriter settings"
+      class="hidden absolute right-0 mt-2 w-64 max-w-[calc(100vw-24px)] max-h-[calc(100vh-72px)] overflow-y-auto p-3.5 rounded-2xl hud-glass text-slate-200 shadow-2xl space-y-3">
       <div class="flex items-center justify-between border-b border-white/10 pb-1.5">
         <span class="font-medium text-[11px] uppercase tracking-wider text-slate-300">Lamp & Mechanics</span>
-        <span id="stats-counter" class="text-[10px] text-slate-400 font-mono">5 words</span>
+        <span id="stats-counter" class="text-[10px] text-slate-400 font-mono">0 words</span>
       </div>
 
       <!-- Lamp Brightness Slider (25% to 120%) -->
@@ -169,7 +169,7 @@
           <span class="text-slate-300">Lamp Brightness</span>
           <span id="val-intensity" class="text-amber-300 font-mono">85%</span>
         </div>
-        <input id="slider-intensity" type="range" min="0.25" max="1.20" step="0.05" value="0.85"
+        <input id="slider-intensity" aria-label="Lamp brightness" type="range" min="0.25" max="1.20" step="0.05" value="0.85"
           class="tactile-slider" />
       </div>
 
@@ -177,11 +177,11 @@
       <div>
         <label class="block text-[10px] uppercase tracking-wider text-slate-400 mb-1">Paper Surface</label>
         <div class="grid grid-cols-2 gap-1.5">
-          <button data-theme="standard"
+          <button type="button" data-theme="standard"
             class="theme-btn min-h-[36px] px-2.5 py-1 rounded-lg text-[11px] bg-white/15 text-white font-medium text-left flex items-center gap-1.5">
             <span class="w-2.5 h-2.5 rounded-full bg-[#5c5852] border border-white/40"></span> Fibrous Taupe
           </button>
-          <button data-theme="dark"
+          <button type="button" data-theme="dark"
             class="theme-btn min-h-[36px] px-2.5 py-1 rounded-lg text-[11px] bg-white/5 hover:bg-white/10 text-slate-300 text-left flex items-center gap-1.5">
             <span class="w-2.5 h-2.5 rounded-full bg-[#2b2926] border border-white/40"></span> Dim Study
           </button>
@@ -192,12 +192,12 @@
       <div>
         <label class="block text-[10px] uppercase tracking-wider text-slate-400 mb-1">Typeface</label>
         <div class="grid grid-cols-3 gap-1">
-          <button data-font="'Courier Prime', monospace"
+          <button type="button" data-font="'Courier Prime', monospace"
             class="font-btn min-h-[36px] px-2 py-1 rounded bg-white/15 text-white text-[11px] font-mono">Courier</button>
-          <button data-font="'Special Elite', monospace"
+          <button type="button" data-font="'Special Elite', monospace"
             class="font-btn min-h-[36px] px-2 py-1 rounded bg-white/5 hover:bg-white/10 text-slate-300 text-[11px]"
             style="font-family: 'Special Elite', monospace;">Elite</button>
-          <button data-font="'IBM Plex Mono', monospace"
+          <button type="button" data-font="'IBM Plex Mono', monospace"
             class="font-btn min-h-[36px] px-2 py-1 rounded bg-white/5 hover:bg-white/10 text-slate-300 text-[11px]"
             style="font-family: 'IBM Plex Mono', monospace;">Plex</button>
         </div>
@@ -231,7 +231,7 @@
   </div>
 
   <!-- Subtle Toast Notification Box -->
-  <div id="toast-box"
+  <div id="toast-box" role="status" aria-live="polite"
     class="fixed bottom-4 right-5 z-50 px-3.5 py-1.5 rounded-full hud-glass text-[11px] text-amber-200 pointer-events-none opacity-0 translate-y-2 transition-all duration-300">
     Saved
   </div>

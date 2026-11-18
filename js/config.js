@@ -10,6 +10,12 @@ window.Lumen = window.Lumen || {};
   Lumen.STORAGE_KEY = 'lumen_tactile_typewriter_state_v3';
   Lumen.INITIAL_REFERENCE_TEXT = 'The rain was heavy, he';
 
+  Lumen.FONTS = [
+    "'Courier Prime', monospace",
+    "'Special Elite', monospace",
+    "'IBM Plex Mono', monospace"
+  ];
+
   Lumen.THEMES = {
     standard: {
       name: 'Fibrous Taupe',

@@ -103,8 +103,14 @@ window.Lumen = window.Lumen || {};
     // Position active typing baseline directly above the T-striker hammer head
     dom.linesContainer.style.bottom = isMobile ? '48px' : '60px';
 
+    // Only render lines that can possibly be on screen (keeps long documents fast)
+    const visibleRows = Math.ceil(state.railY / state.lineHeight) + 3;
+    const scrolledBack = Math.max(0, Math.ceil(state.paperScrollOffsetLines));
+    const firstLine = Math.max(0, state.currentLineIndex - visibleRows - scrolledBack);
+    const frag = document.createDocumentFragment();
+
     state.lines.forEach((lineObj, lineIdx) => {
-      if (lineIdx > state.currentLineIndex) return;
+      if (lineIdx > state.currentLineIndex || lineIdx < firstLine) return;
 
       const rowEl = document.createElement('div');
       rowEl.className = 'typewriter-text whitespace-pre relative';
@@ -139,8 +145,9 @@ window.Lumen = window.Lumen || {};
         rowEl.appendChild(span);
       });
 
-      dom.linesContainer.appendChild(rowEl);
+      frag.appendChild(rowEl);
     });
+    dom.linesContainer.appendChild(frag);
 
     updateStatsHUD();
   }
@@ -172,6 +179,13 @@ window.Lumen = window.Lumen || {};
     const vh = window.innerHeight;
     const isMobile = vw < 640;
     const theme = Lumen.THEMES[state.themeKey] || Lumen.THEMES.standard;
+
+    // Skip the expensive repaint when nothing visible has changed
+    const sig = [vw, vh, state.railY, state.currentCarriageX.toFixed(1), state.lampIntensity,
+      state.themeKey, state.coneSpreadDeg, !!paperFiberPattern].join('|');
+    if (sig === Lumen.lastSpotlightSig && !Lumen.spotlightDirty) return;
+    Lumen.lastSpotlightSig = sig;
+    Lumen.spotlightDirty = false;
 
     ctx.clearRect(0, 0, vw, vh);
 

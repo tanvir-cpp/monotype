@@ -54,6 +54,13 @@ window.Lumen = window.Lumen || {};
     if (Lumen.dom.popoverSettings) {
       Lumen.dom.popoverSettings.classList.add('hidden');
     }
+    if (Lumen.dom.btnSettings) {
+      Lumen.dom.btnSettings.setAttribute('aria-expanded', 'false');
+    }
+  }
+
+  function isHudControl(target) {
+    return !!(target && target.closest && target.closest('#minimal-hud'));
   }
 
   function dismissTouchPrompt() {
@@ -91,9 +98,11 @@ window.Lumen = window.Lumen || {};
     if (Lumen.dom.paperBackdrop) {
       Lumen.dom.paperBackdrop.style.backgroundColor = t.paperBase;
     }
+    Lumen.spotlightDirty = true;
 
     document.querySelectorAll('.theme-btn').forEach((btn) => {
       const active = btn.getAttribute('data-theme') === themeKey;
+      btn.setAttribute('aria-pressed', String(active));
       btn.className = active
         ? 'theme-btn min-h-[36px] px-2.5 py-1 rounded-lg text-[11px] bg-white/15 text-white font-medium text-left flex items-center gap-1.5'
         : 'theme-btn min-h-[36px] px-2.5 py-1 rounded-lg text-[11px] bg-white/5 hover:bg-white/10 text-slate-300 text-left flex items-center gap-1.5';
@@ -107,6 +116,7 @@ window.Lumen = window.Lumen || {};
     if (!btn) return;
     const isEnabled = Lumen.state.mechSoundEnabled;
     btn.textContent = isEnabled ? 'Keys: On' : 'Keys: Off';
+    btn.setAttribute('aria-pressed', String(isEnabled));
     btn.classList.toggle('text-slate-200', isEnabled);
     btn.classList.toggle('text-slate-500', !isEnabled);
   }
@@ -118,13 +128,37 @@ window.Lumen = window.Lumen || {};
     const btn = Lumen.dom.quickRainBtn;
     if (btn) {
       btn.textContent = enabled ? 'Rain: On' : 'Rain: Off';
+      btn.setAttribute('aria-pressed', String(enabled));
       btn.classList.toggle('text-sky-300', enabled);
       btn.classList.toggle('text-slate-300', !enabled);
     }
   }
 
+  function applyFont(fontFamily) {
+    Lumen.state.fontFamily = fontFamily;
+    document.documentElement.style.setProperty('--font-typewriter', fontFamily);
+    document.querySelectorAll('.font-btn').forEach((b) => {
+      const active = b.getAttribute('data-font') === fontFamily;
+      b.setAttribute('aria-pressed', String(active));
+      b.className = active
+        ? 'font-btn min-h-[36px] px-2 py-1 rounded bg-white/15 text-white text-[11px]'
+        : 'font-btn min-h-[36px] px-2 py-1 rounded bg-white/5 hover:bg-white/10 text-slate-300 text-[11px]';
+    });
+    // Re-measure now, and again once the web font has really loaded
+    if (Lumen.measureLayoutMetrics) Lumen.measureLayoutMetrics();
+    if (document.fonts && document.fonts.load) {
+      document.fonts.load(`20px ${fontFamily}`).then(() => {
+        if (Lumen.state.fontFamily === fontFamily && Lumen.measureLayoutMetrics) {
+          Lumen.measureLayoutMetrics();
+        }
+      }).catch(() => {});
+    }
+  }
+
   function updateCorrectionModeUI() {
     const isRibbon = Lumen.state.correctionMode === 'ribbon';
+    if (Lumen.dom.modeRibbon) Lumen.dom.modeRibbon.setAttribute('aria-pressed', String(isRibbon));
+    if (Lumen.dom.modeOverstrike) Lumen.dom.modeOverstrike.setAttribute('aria-pressed', String(!isRibbon));
     if (Lumen.dom.modeRibbon) {
       Lumen.dom.modeRibbon.className = isRibbon
         ? 'min-h-[36px] px-2 py-1 rounded-lg text-[11px] bg-white/15 text-white font-medium'
@@ -146,8 +180,14 @@ window.Lumen = window.Lumen || {};
 
     // Physical Keyboard Input
     window.addEventListener('keydown', (e) => {
-      if (e.ctrlKey || e.metaKey || e.altKey) return;
-      if (e.target && e.target.tagName === 'INPUT' && e.target.type === 'range') return;
+      if (e.key === 'Escape') {
+        closeAllPopovers();
+        if (dom.hiddenInput) dom.hiddenInput.focus({ preventScroll: true });
+        return;
+      }
+      if (e.ctrlKey || e.metaKey || e.altKey || e.isComposing) return;
+      // Let focused HUD controls (buttons, slider) keep Enter/Space/Tab/arrows
+      if (isHudControl(e.target)) return;
 
       if (e.key === 'Enter') {
         e.preventDefault();
@@ -211,28 +251,55 @@ window.Lumen = window.Lumen || {};
     });
 
     window.addEventListener('keyup', (e) => {
-      if (e.key.length === 1 || e.key === 'Backspace' || e.key === ' ') {
+      if (isHudControl(e.target)) return;
+      if (e.key.length === 1 || e.key === 'Backspace') {
         if (Lumen.audio) Lumen.audio.playKeyRelease();
       }
     });
 
-    // Mobile / IME Hidden Input Bridge
+    // Mobile / IME Hidden Input Bridge.
+    // A zero-width sentinel keeps the textarea non-empty so soft-keyboard
+    // Backspace (which reports key "Unidentified") still produces an event.
+    const SENTINEL = '\u200b';
     if (dom.hiddenInput) {
-      dom.hiddenInput.addEventListener('input', () => {
+      const resetHidden = () => { dom.hiddenInput.value = SENTINEL; };
+      resetHidden();
+      dom.hiddenInput.addEventListener('focus', resetHidden);
+
+      dom.hiddenInput.addEventListener('beforeinput', (e) => {
+        if (e.isComposing) return;
+        if (Date.now() - lastKeyHandledTimestamp < 60) return;
+        if (e.inputType === 'deleteContentBackward') {
+          e.preventDefault();
+          if (Lumen.performBackspace) Lumen.performBackspace();
+        } else if (e.inputType === 'insertLineBreak' || e.inputType === 'insertParagraph') {
+          e.preventDefault();
+          if (Lumen.performCarriageReturn) Lumen.performCarriageReturn();
+        }
+      });
+
+      dom.hiddenInput.addEventListener('input', (e) => {
+        if (e.isComposing) return;
         if (Date.now() - lastKeyHandledTimestamp < 60) {
-          dom.hiddenInput.value = '';
+          resetHidden();
           return;
         }
-        const val = dom.hiddenInput.value;
-        if (val && val.length > 0) {
-          const char = val[val.length - 1];
-          if (char === '\n') {
-            if (Lumen.performCarriageReturn) Lumen.performCarriageReturn();
-          } else {
-            if (Lumen.stampCharacter) Lumen.stampCharacter(char);
-          }
-        }
-        dom.hiddenInput.value = '';
+        const val = dom.hiddenInput.value.split(SENTINEL).join('');
+        if (val && Lumen.stampText) Lumen.stampText(val);
+        resetHidden();
+      });
+
+      dom.hiddenInput.addEventListener('compositionend', (e) => {
+        if (e.data && Lumen.stampText) Lumen.stampText(e.data);
+        resetHidden();
+      });
+
+      // Paste text onto the page, one strike at a time
+      window.addEventListener('paste', (e) => {
+        const text = e.clipboardData && e.clipboardData.getData('text');
+        if (!text) return;
+        e.preventDefault();
+        if (Lumen.stampText) Lumen.stampText(text.slice(0, 5000));
       });
     }
 
@@ -246,7 +313,7 @@ window.Lumen = window.Lumen || {};
 
       // Touch Drag Gestures for Paper History Scrolling
       dom.stage.addEventListener('touchstart', (e) => {
-        if (e.target.closest('#minimal-hud')) return;
+        if (isHudControl(e.target)) return;
         if (e.touches && e.touches.length === 1) {
           touchStartY = e.touches[0].clientY;
           touchMoved = false;
@@ -266,7 +333,7 @@ window.Lumen = window.Lumen || {};
       }, { passive: true });
 
       dom.stage.addEventListener('touchend', (e) => {
-        if (e.target.closest('#minimal-hud')) return;
+        if (isHudControl(e.target)) return;
         if (!touchMoved) {
           closeAllPopovers();
           dismissTouchPrompt();
@@ -292,13 +359,18 @@ window.Lumen = window.Lumen || {};
 
     // Mouse Wheel Scrolling for Paper History
     window.addEventListener('wheel', (e) => {
-      if (e.target.closest('#minimal-hud')) return;
+      if (isHudControl(e.target)) return;
       e.preventDefault();
       const dir = e.deltaY < 0 ? 1 : -1;
       if (Lumen.scrollPaperHistory) {
         Lumen.scrollPaperHistory(dir * 0.65);
       }
     }, { passive: false });
+
+    window.addEventListener('beforeunload', () => { if (Lumen.flushSave) Lumen.flushSave(); });
+    document.addEventListener('visibilitychange', () => {
+      if (document.hidden && Lumen.flushSave) Lumen.flushSave();
+    });
 
     // Window Resize
     window.addEventListener('resize', () => {
@@ -319,7 +391,10 @@ window.Lumen = window.Lumen || {};
     if (dom.btnSettings) {
       dom.btnSettings.addEventListener('click', (e) => {
         e.stopPropagation();
-        if (dom.popoverSettings) dom.popoverSettings.classList.toggle('hidden');
+        if (dom.popoverSettings) {
+          const nowHidden = dom.popoverSettings.classList.toggle('hidden');
+          dom.btnSettings.setAttribute('aria-expanded', String(!nowHidden));
+        }
       });
     }
 
@@ -348,14 +423,7 @@ window.Lumen = window.Lumen || {};
     // Typeface Buttons
     document.querySelectorAll('.font-btn').forEach((btn) => {
       btn.addEventListener('click', () => {
-        state.fontFamily = btn.getAttribute('data-font');
-        document.documentElement.style.setProperty('--font-typewriter', state.fontFamily);
-        document.querySelectorAll('.font-btn').forEach((b) => {
-          b.className = b === btn
-            ? 'font-btn min-h-[36px] px-2 py-1 rounded bg-white/15 text-white text-[11px]'
-            : 'font-btn min-h-[36px] px-2 py-1 rounded bg-white/5 hover:bg-white/10 text-slate-300 text-[11px]';
-        });
-        if (Lumen.measureLayoutMetrics) Lumen.measureLayoutMetrics();
+        applyFont(btn.getAttribute('data-font'));
         if (Lumen.saveToStorage) Lumen.saveToStorage();
       });
     });
@@ -365,6 +433,7 @@ window.Lumen = window.Lumen || {};
       dom.quickAudioBtn.addEventListener('click', () => {
         state.mechSoundEnabled = !state.mechSoundEnabled;
         updateAudioUI();
+        if (Lumen.saveToStorage) Lumen.saveToStorage();
         showToast(state.mechSoundEnabled ? 'Mechanical key audio enabled' : 'Key audio muted');
       });
     }
@@ -397,10 +466,10 @@ window.Lumen = window.Lumen || {};
     // Reset Reference Text Button
     if (dom.actionResetScene) {
       dom.actionResetScene.addEventListener('click', () => {
+        if (hasContent() && !window.confirm('Replace the current page with the reference text?')) return;
         if (Lumen.animatePaperChange) {
           Lumen.animatePaperChange(() => {
             if (Lumen.initDefaultScene) Lumen.initDefaultScene();
-            applyTheme('standard');
           });
         }
         showToast('Restored reference text');
@@ -410,6 +479,7 @@ window.Lumen = window.Lumen || {};
     // Clear / New Sheet Button
     if (dom.actionNewSheet) {
       dom.actionNewSheet.addEventListener('click', () => {
+        if (hasContent() && !window.confirm('Clear this page? Export or copy it first if you want to keep it.')) return;
         if (Lumen.animatePaperChange) {
           Lumen.animatePaperChange(() => {
             state.lines = [Lumen.createEmptyLine ? Lumen.createEmptyLine() : { cells: [] }];
@@ -427,6 +497,7 @@ window.Lumen = window.Lumen || {};
       dom.actionExportTxt.addEventListener('click', () => {
         closeAllPopovers();
         const text = Lumen.getPlainTextManuscript ? Lumen.getPlainTextManuscript() : '';
+        if (!text.trim()) { showToast('Nothing to export'); return; }
         const blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -458,6 +529,10 @@ window.Lumen = window.Lumen || {};
     }
   }
 
+  function hasContent() {
+    return Lumen.state.lines.some((l) => l.cells.some((c) => c && c.char && c.char.trim()));
+  }
+
   function legacyCopyFallback(text) {
     const tempArea = document.createElement('textarea');
     tempArea.value = text;
@@ -482,7 +557,7 @@ window.Lumen = window.Lumen || {};
 
     if (Lumen.loadFromStorage) Lumen.loadFromStorage();
     applyTheme(Lumen.state.themeKey);
-    document.documentElement.style.setProperty('--font-typewriter', Lumen.state.fontFamily);
+    applyFont(Lumen.state.fontFamily);
 
     if (Lumen.dom.sliderIntensity) {
       Lumen.dom.sliderIntensity.value = Lumen.state.lampIntensity;
@@ -499,7 +574,7 @@ window.Lumen = window.Lumen || {};
     if (Lumen.state.isTouchDevice) {
       if (Lumen.dom.hud) {
         Lumen.dom.hud.classList.remove('opacity-25');
-        Lumen.dom.hud.classList.add('opacity-65');
+        Lumen.dom.hud.classList.add('opacity-70');
       }
       if (Lumen.dom.quickKbdBtn) {
         Lumen.dom.quickKbdBtn.classList.remove('hidden');

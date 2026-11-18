@@ -56,14 +56,24 @@ window.Lumen = window.Lumen || {};
         return;
       }
       const parsed = JSON.parse(raw);
-      if (parsed && Array.isArray(parsed.lines) && parsed.lines.length > 0) {
+      const validLines = parsed && Array.isArray(parsed.lines) &&
+        parsed.lines.length > 0 &&
+        parsed.lines.every((l) => l && Array.isArray(l.cells));
+      if (validLines) {
         state.lines = parsed.lines;
-        state.currentLineIndex = Math.min(parsed.currentLineIndex || 0, state.lines.length - 1);
-        state.cursorCol = parsed.cursorCol || 0;
+        const idx = Number.isFinite(parsed.currentLineIndex) ? parsed.currentLineIndex : 0;
+        state.currentLineIndex = Math.max(0, Math.min(idx, state.lines.length - 1));
+        const col = Number.isFinite(parsed.cursorCol) ? parsed.cursorCol : 0;
+        state.cursorCol = Math.max(0, Math.min(col, state.maxCols - 1));
         if (parsed.themeKey && Lumen.THEMES[parsed.themeKey]) state.themeKey = parsed.themeKey;
-        if (typeof parsed.lampIntensity === 'number') state.lampIntensity = parsed.lampIntensity;
-        if (parsed.fontFamily) state.fontFamily = parsed.fontFamily;
-        if (parsed.correctionMode) state.correctionMode = parsed.correctionMode;
+        if (typeof parsed.lampIntensity === 'number' && isFinite(parsed.lampIntensity)) {
+          state.lampIntensity = Math.max(0.25, Math.min(1.2, parsed.lampIntensity));
+        }
+        if (Lumen.FONTS.includes(parsed.fontFamily)) state.fontFamily = parsed.fontFamily;
+        if (parsed.correctionMode === 'ribbon' || parsed.correctionMode === 'overstrike') {
+          state.correctionMode = parsed.correctionMode;
+        }
+        if (typeof parsed.mechSoundEnabled === 'boolean') state.mechSoundEnabled = parsed.mechSoundEnabled;
       } else {
         initDefaultScene();
       }
@@ -72,7 +82,14 @@ window.Lumen = window.Lumen || {};
     }
   }
 
+  let saveTimer = null;
   function saveToStorage() {
+    if (saveTimer) clearTimeout(saveTimer);
+    saveTimer = setTimeout(flushSave, 300);
+  }
+
+  function flushSave() {
+    if (saveTimer) { clearTimeout(saveTimer); saveTimer = null; }
     const state = Lumen.state;
     try {
       const payload = {
@@ -82,7 +99,8 @@ window.Lumen = window.Lumen || {};
         themeKey: state.themeKey,
         lampIntensity: state.lampIntensity,
         fontFamily: state.fontFamily,
-        correctionMode: state.correctionMode
+        correctionMode: state.correctionMode,
+        mechSoundEnabled: state.mechSoundEnabled
       };
       localStorage.setItem(Lumen.STORAGE_KEY, JSON.stringify(payload));
     } catch (err) {
@@ -115,6 +133,7 @@ window.Lumen = window.Lumen || {};
     // Measure monospace character width accurately (20px desktop, 16px mobile)
     const probe = document.createElement('span');
     probe.className = 'typewriter-text';
+    probe.style.fontFamily = state.fontFamily;
     probe.style.fontSize = isMobile ? '16px' : '20px';
     probe.style.position = 'absolute';
     probe.style.visibility = 'hidden';
@@ -154,11 +173,16 @@ window.Lumen = window.Lumen || {};
       const canvasW = window.innerWidth;
       const canvasH = window.innerHeight;
       const dpr = Math.min(window.devicePixelRatio || 1, 2);
-      dom.spotlightCanvas.width = canvasW * dpr;
-      dom.spotlightCanvas.height = canvasH * dpr;
-      if (Lumen.ctx) {
-        Lumen.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const pxW = Math.round(canvasW * dpr);
+      const pxH = Math.round(canvasH * dpr);
+      if (dom.spotlightCanvas.width !== pxW || dom.spotlightCanvas.height !== pxH) {
+        dom.spotlightCanvas.width = pxW;
+        dom.spotlightCanvas.height = pxH;
+        if (Lumen.ctx) {
+          Lumen.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        }
       }
+      Lumen.spotlightDirty = true;
     }
 
     if (!Lumen.paperFiberPattern && Lumen.buildFibrousPaperPattern) {
@@ -371,11 +395,13 @@ window.Lumen = window.Lumen || {};
       if (Lumen.renderPaperDOM) Lumen.renderPaperDOM();
       saveToStorage();
     } else if (state.currentLineIndex > 0 && state.correctionMode === 'ribbon') {
-      if (currentLine.cells.length === 0) {
-        state.lines.splice(state.currentLineIndex, 1);
-      }
+      const prevLine = state.lines[state.currentLineIndex - 1];
+      // Never leave hidden text below the carriage: merge only when it fits.
+      if (prevLine.cells.length + currentLine.cells.length >= state.maxCols) return;
+      state.lines.splice(state.currentLineIndex, 1);
       state.currentLineIndex--;
-      state.cursorCol = state.lines[state.currentLineIndex].cells.length;
+      state.cursorCol = prevLine.cells.length;
+      prevLine.cells = prevLine.cells.concat(currentLine.cells);
       if (Lumen.audio) Lumen.audio.playBackspaceTick();
       updateTargetCoordinates(false);
       if (Lumen.renderPaperDOM) Lumen.renderPaperDOM();
@@ -394,6 +420,7 @@ window.Lumen = window.Lumen || {};
       state.paperScrollOffsetLines = nextOffset;
       if (Lumen.audio) Lumen.audio.playPaperScrollRustle();
       updateTargetCoordinates(false);
+      if (Lumen.renderPaperDOM) Lumen.renderPaperDOM();
     }
   }
 
@@ -417,6 +444,19 @@ window.Lumen = window.Lumen || {};
     }, 560);
   }
 
+  function stampText(text) {
+    for (const ch of String(text)) {
+      if (ch === '\n' || ch === '\r') {
+        if (ch === '\r') continue;
+        performCarriageReturn();
+      } else if (ch === '\t') {
+        for (let i = 0; i < 4; i++) stampCharacter(' ');
+      } else if (ch >= ' ') {
+        stampCharacter(ch);
+      }
+    }
+  }
+
   function getPlainTextManuscript() {
     const state = Lumen.state;
     return state.lines
@@ -431,6 +471,7 @@ window.Lumen = window.Lumen || {};
   Lumen.initDefaultScene = initDefaultScene;
   Lumen.loadFromStorage = loadFromStorage;
   Lumen.saveToStorage = saveToStorage;
+  Lumen.flushSave = flushSave;
   Lumen.getActiveViewportMetrics = getActiveViewportMetrics;
   Lumen.measureLayoutMetrics = measureLayoutMetrics;
   Lumen.updateTargetCoordinates = updateTargetCoordinates;
@@ -443,5 +484,6 @@ window.Lumen = window.Lumen || {};
   Lumen.scrollPaperHistory = scrollPaperHistory;
   Lumen.animatePaperChange = animatePaperChange;
   Lumen.getPlainTextManuscript = getPlainTextManuscript;
+  Lumen.stampText = stampText;
 })(window.Lumen);
 
