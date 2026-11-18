@@ -193,11 +193,14 @@ window.Lumen = window.Lumen || {};
     ctx.clearRect(0, 0, vw, vh);
 
     // 1. Subtle peripheral stone-taupe vignette on outer unlit edges
+    // Shade pools around the lamp rather than the screen centre, so lit and
+    // unlit areas stay balanced wherever the carriage is
+    const vigX = state.currentCarriageX * 0.6 + vw * 0.5 * 0.4;
     const edgeGrad = ctx.createRadialGradient(
-      vw * 0.5,
+      vigX,
       vh * 0.45,
       vh * 0.22,
-      vw * 0.5,
+      vigX,
       vh * 0.45,
       Math.max(vw, vh) * 0.8
     );
@@ -287,6 +290,86 @@ window.Lumen = window.Lumen || {};
     }
   }
 
+  // -------------------------------------------------------------------------
+  // PNG Export: draws the full page (not just the visible part) onto a canvas
+  // -------------------------------------------------------------------------
+  function exportPagePNG() {
+    const state = Lumen.state;
+    const theme = Lumen.THEMES[state.themeKey] || Lumen.THEMES.white;
+
+    // Drop trailing blank lines
+    const lines = state.lines.slice();
+    const isBlank = (l) => l.cells.every((c) => !c || !c.char || !c.char.trim());
+    while (lines.length > 1 && isBlank(lines[lines.length - 1])) lines.pop();
+    if (lines.length === 1 && isBlank(lines[0])) return Promise.resolve(null);
+
+    const scale = 2;
+    const fontPx = state.fontPx || 20;
+    const cw = state.charWidth;
+    const lh = state.lineHeight;
+    const padX = Math.round(cw * 6);
+    const padY = Math.round(lh * 2.5);
+    const widest = Math.max(state.maxCols, ...lines.map((l) => l.cells.length));
+    const width = Math.round(widest * cw + padX * 2);
+    const height = Math.round(lines.length * lh + padY * 2);
+
+    const canvas = document.createElement('canvas');
+    canvas.width = width * scale;
+    canvas.height = height * scale;
+    const ctx = canvas.getContext('2d');
+    ctx.scale(scale, scale);
+
+    ctx.fillStyle = theme.paperBase;
+    ctx.fillRect(0, 0, width, height);
+    if (Lumen.paperFiberPattern) {
+      ctx.save();
+      ctx.globalAlpha = theme.light ? 0.55 : 0.88;
+      ctx.fillStyle = Lumen.paperFiberPattern;
+      ctx.fillRect(0, 0, width, height);
+      ctx.restore();
+    }
+
+    const draw = () => {
+      ctx.textBaseline = 'alphabetic';
+      ctx.textAlign = 'left';
+      ctx.font = `${fontPx}px ${state.fontFamily}`;
+      const ink = theme.inkColor;
+
+      const drawGlyph = (ch, x, y, c) => {
+        ctx.save();
+        ctx.translate(x + cw / 2, y);
+        ctx.rotate(((c.rot || 0) * Math.PI) / 180);
+        ctx.globalAlpha = c.opacity == null ? 0.92 : c.opacity;
+        ctx.fillStyle = ink;
+        if (c.bleed) {
+          ctx.shadowColor = ink;
+          ctx.shadowBlur = c.bleed * scale;
+        }
+        ctx.textAlign = 'center';
+        ctx.fillText(ch, c.dx || 0, c.dy || 0);
+        ctx.restore();
+      };
+
+      lines.forEach((line, row) => {
+        const baseY = padY + row * lh + lh * 0.72;
+        line.cells.forEach((cell, col) => {
+          if (!cell || !cell.char || cell.char === ' ') return;
+          const x = padX + col * cw;
+          drawGlyph(cell.char, x, baseY, cell);
+          (cell.overstrikes || []).forEach((o) => drawGlyph(o.char, x, baseY, o));
+        });
+      });
+
+      return new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
+    };
+
+    const ready = document.fonts && document.fonts.load
+      ? document.fonts.load(`${fontPx}px ${state.fontFamily}`).catch(() => {})
+      : Promise.resolve();
+    return ready.then(draw);
+  }
+
+  Lumen.exportPagePNG = exportPagePNG;
   Lumen.buildFibrousPaperPattern = buildFibrousPaperPattern;
   Lumen.renderPaperDOM = renderPaperDOM;
   Lumen.updateStatsHUD = updateStatsHUD;

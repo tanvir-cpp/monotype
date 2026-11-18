@@ -558,6 +558,26 @@ window.Lumen = window.Lumen || {};
       });
     }
 
+    // Export .png Button
+    if (dom.actionExportPng) {
+      dom.actionExportPng.addEventListener('click', () => {
+        closeAllPopovers();
+        if (!Lumen.exportPagePNG) return;
+        Lumen.exportPagePNG().then((blob) => {
+          if (!blob) { showToast('Nothing to export'); return; }
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `typewriter-${new Date().toISOString().slice(0, 10)}.png`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          setTimeout(() => URL.revokeObjectURL(url), 1000);
+          showToast('Exported .png');
+        }).catch(() => showToast('PNG export failed'));
+      });
+    }
+
     // Export .txt Button
     if (dom.actionExportTxt) {
       dom.actionExportTxt.addEventListener('click', () => {

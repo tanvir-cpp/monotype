@@ -17,45 +17,46 @@ window.Lumen = window.Lumen || {};
   ];
 
   Lumen.THEMES = {
+    // Light papers: the lamp adds a warm glow that fades INTO the paper colour
+    // (no grey smudge), and a gentle edge shade makes the lit area read.
     white: {
       name: 'Bright White',
       light: true,
       paperBase: '#f6f4ee',
-      vignetteEdge: 'rgba(120, 112, 98, 0.30)',
+      vignetteEdge: 'rgba(125, 112, 90, 0.34)',
       inkColor: '#1b1a18',
-      // Soft warm lamp glow that brightens (not muddies) white paper
-      coneCore: [255, 250, 232],
-      coneMid: [250, 240, 212],
-      coneOuter: [232, 222, 198]
+      coneCore: [255, 245, 214],
+      coneMid: [253, 242, 210],
+      coneOuter: [247, 240, 224]
     },
     cream: {
       name: 'Warm Cream',
       light: true,
       paperBase: '#efe7d3',
-      vignetteEdge: 'rgba(130, 115, 90, 0.32)',
+      vignetteEdge: 'rgba(120, 100, 70, 0.36)',
       inkColor: '#1f1a14',
-      coneCore: [255, 247, 222],
-      coneMid: [247, 232, 196],
-      coneOuter: [226, 210, 176]
+      coneCore: [255, 246, 218],
+      coneMid: [251, 238, 202],
+      coneOuter: [242, 232, 208]
     },
+    // Dark papers: raised base brightness so ink stays legible outside the cone
     standard: {
       name: 'Fibrous Taupe',
-      paperBase: '#5c5852',
-      vignetteEdge: 'rgba(54, 51, 47, 0.58)',
+      paperBase: '#847f75',
+      vignetteEdge: 'rgba(52, 48, 43, 0.50)',
       inkColor: '#161513',
-      // Warm cream-parchment (#f4dfb6) -> warm sand (#ccb790) -> muted taupe (#8a7f6d)
-      coneCore: [244, 223, 182],
-      coneMid: [204, 183, 144],
-      coneOuter: [138, 127, 109]
+      coneCore: [250, 232, 192],
+      coneMid: [226, 205, 160],
+      coneOuter: [170, 158, 135]
     },
     dark: {
       name: 'Dim Study',
-      paperBase: '#2b2926',
-      vignetteEdge: 'rgba(18, 17, 15, 0.72)',
-      inkColor: '#141311',
-      coneCore: [240, 216, 172],
-      coneMid: [188, 166, 128],
-      coneOuter: [108, 98, 84]
+      paperBase: '#4a453d',
+      vignetteEdge: 'rgba(14, 13, 11, 0.58)',
+      inkColor: '#12110f',
+      coneCore: [248, 226, 182],
+      coneMid: [206, 184, 142],
+      coneOuter: [130, 118, 98]
     }
   };
 
@@ -136,6 +137,7 @@ window.Lumen = window.Lumen || {};
       modeOverstrike: document.getElementById('mode-overstrike'),
       actionResetScene: document.getElementById('action-reset-scene'),
       actionNewSheet: document.getElementById('action-new-sheet'),
+      actionExportPng: document.getElementById('action-export-png'),
       actionExportTxt: document.getElementById('action-export-txt'),
       sliderKeyVol: document.getElementById('slider-keyvol'),
       valKeyVol: document.getElementById('val-keyvol'),
