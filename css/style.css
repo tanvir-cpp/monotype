@@ -1,6 +1,6 @@
 :root {
-  --paper-base: #5c5852;
-  --ink-color: #161513;
+  --paper-base: #f6f4ee;
+  --ink-color: #1b1a18;
   --rail-Y: 76vh;
   --font-typewriter: 'Courier Prime', monospace;
 }
@@ -327,15 +327,21 @@ html, body {
 
 /* Freshly struck ink impression animation */
 .char-fresh {
-  animation: freshInkStamp 0.14s ease-out forwards;
+  animation: freshInkStamp 0.22s ease-out forwards;
 }
 
 @keyframes freshInkStamp {
   0% {
-    transform: scale(1.03) translateY(0.4px);
+    transform: scale(1.06) translateY(0.5px);
+    filter: blur(0.6px);
+    opacity: 0.55;
+  }
+  60% {
+    filter: blur(0.25px);
   }
   100% {
     transform: scale(1) translateY(0);
+    filter: blur(0);
   }
 }
 

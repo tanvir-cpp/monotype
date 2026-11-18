@@ -37,7 +37,10 @@ window.Lumen = window.Lumen || {};
       dom.pillCarriage.style.transform = `translate3d(${state.currentCarriageX.toFixed(2)}px, 0, 0)`;
     }
     if (dom.paperSheet) {
-      dom.paperSheet.style.transform = `translate3d(0, ${state.currentPaperY.toFixed(2)}px, 0)`;
+      state.strikeKick *= 0.62;
+      if (state.strikeKick < 0.02) state.strikeKick = 0;
+      const y = state.currentPaperY + state.strikeKick;
+      dom.paperSheet.style.transform = `translate3d(0, ${y.toFixed(2)}px, 0)`;
     }
 
     if (Lumen.renderVolumetricSpotlight) {
@@ -89,7 +92,7 @@ window.Lumen = window.Lumen || {};
   }
 
   function applyTheme(themeKey) {
-    if (!Lumen.THEMES[themeKey]) themeKey = 'standard';
+    if (!Lumen.THEMES[themeKey]) themeKey = 'white';
     Lumen.state.themeKey = themeKey;
     const t = Lumen.THEMES[themeKey];
 

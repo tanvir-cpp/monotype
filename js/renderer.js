@@ -129,6 +129,9 @@ window.Lumen = window.Lumen || {};
         span.style.width = `${state.charWidth}px`;
         span.style.opacity = cell.opacity;
         span.style.transform = `translate(${cell.dx}px, ${cell.dy}px) rotate(${cell.rot}deg)`;
+        if (cell.bleed) {
+          span.style.textShadow = `0 0 ${cell.bleed}px rgba(27, 26, 24, ${Math.min(0.6, cell.bleed * 0.6).toFixed(2)})`;
+        }
         span.textContent = cell.char || ' ';
 
         if (cell.overstrikes && cell.overstrikes.length > 0) {
@@ -277,7 +280,7 @@ window.Lumen = window.Lumen || {};
     // 4. Composite organic cotton fibers, tiny natural flecks & paper tooth across the sheet
     if (paperFiberPattern) {
       ctx.save();
-      ctx.globalAlpha = 0.88;
+      ctx.globalAlpha = state.themeKey === 'white' ? 0.55 : 0.88;
       ctx.fillStyle = paperFiberPattern;
       ctx.fillRect(0, 0, vw, vh);
       ctx.restore();

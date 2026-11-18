@@ -52,7 +52,7 @@
 
     <!-- LAYER 4 (z-25): Lower Paper Platen Shadow Below the Thick Bar -->
     <div id="below-rail-paper" class="absolute inset-x-0 bottom-0 pointer-events-none"
-      style="top: var(--rail-Y); z-index: 25; background: linear-gradient(180deg, rgba(10, 10, 12, 0.28) 0px, rgba(10, 10, 12, 0.08) 22px, rgba(8, 8, 10, 0.14) 100%);">
+      style="top: var(--rail-Y); z-index: 25; background: linear-gradient(180deg, rgba(10, 10, 12, 0.22) 0px, rgba(10, 10, 12, 0.05) 22px, rgba(8, 8, 10, 0.08) 100%);">
     </div>
 
     <!-- LAYER 5 (z-20 / z-22): Thick Cylindrical Black Metal Bar & Left/Right Margin Clamp Collars -->
@@ -176,9 +176,13 @@
       <!-- Paper Surface Mode (Stone Taupe #5c5852 vs Dim Room #2e2c29) -->
       <div>
         <label class="block text-[10px] uppercase tracking-wider text-slate-400 mb-1">Paper Surface</label>
-        <div class="grid grid-cols-2 gap-1.5">
-          <button type="button" data-theme="standard"
+        <div class="grid grid-cols-3 gap-1.5">
+          <button type="button" data-theme="white"
             class="theme-btn min-h-[36px] px-2.5 py-1 rounded-lg text-[11px] bg-white/15 text-white font-medium text-left flex items-center gap-1.5">
+            <span class="w-2.5 h-2.5 rounded-full bg-[#f6f4ee] border border-white/40"></span> Bright White
+          </button>
+          <button type="button" data-theme="standard"
+            class="theme-btn min-h-[36px] px-2.5 py-1 rounded-lg text-[11px] bg-white/5 hover:bg-white/10 text-slate-300 text-left flex items-center gap-1.5">
             <span class="w-2.5 h-2.5 rounded-full bg-[#5c5852] border border-white/40"></span> Fibrous Taupe
           </button>
           <button type="button" data-theme="dark"

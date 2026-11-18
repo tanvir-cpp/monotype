@@ -13,16 +13,34 @@ window.Lumen = window.Lumen || {};
   // -------------------------------------------------------------------------
   // Data Model & Organic Ink Physics
   // -------------------------------------------------------------------------
+  // Worn-typeface bias: each slug sits slightly differently, like a real typebar
+  function charBias(ch) {
+    const c = ch.charCodeAt(0);
+    const h = Math.sin(c * 12.9898) * 43758.5453;
+    const f = h - Math.floor(h);
+    return { dy: (f - 0.5) * 0.9, rot: (((f * 7.3) % 1) - 0.5) * 0.7 };
+  }
+
   function createInkCell(char, isFresh = false) {
+    const light = /[.,'`:;\-_"]/.test(char);
+    const heavy = /[MWQ@#%&BDOHNAGU]/.test(char);
+    // Strike pressure depends on how much metal hits the ribbon
+    let pressure = light ? 0.68 + Math.random() * 0.14
+      : heavy ? 0.9 + Math.random() * 0.1
+      : 0.8 + Math.random() * 0.16;
+    const r = Math.random();
+    if (r < 0.06) pressure *= 0.78;        // faint, glancing strike
+    else if (r > 0.95) pressure = Math.min(1, pressure * 1.08); // hard strike
+    const bias = charBias(char || ' ');
     return {
       char: char,
       overstrikes: [],
-      // Crisp deep carbon-black ink density (0.88 to 0.98) for effortless legibility
-      opacity: +(0.88 + Math.random() * 0.10).toFixed(2),
-      // Micro mechanical jitter (±0.3px vertical & subtle organic angle)
-      dy: +((Math.random() - 0.5) * 0.6).toFixed(2),
-      dx: +((Math.random() - 0.5) * 0.24).toFixed(2),
-      rot: +((Math.random() - 0.5) * 0.4).toFixed(2),
+      opacity: +Math.min(1, pressure).toFixed(2),
+      // Ink bleed: harder strikes spread slightly into the paper fibres
+      bleed: +(0.25 + pressure * 0.55 + Math.random() * 0.2).toFixed(2),
+      dy: +(bias.dy + (Math.random() - 0.5) * 0.9).toFixed(2),
+      dx: +((Math.random() - 0.5) * 0.7).toFixed(2),
+      rot: +(bias.rot + (Math.random() - 0.5) * 0.7).toFixed(2),
       fresh: isFresh
     };
   }
@@ -294,6 +312,7 @@ window.Lumen = window.Lumen || {};
     }
 
     triggerPhysicalStrikeAnimation();
+    state.strikeKick = char === ' ' ? 0.7 : 1.3; // paper shudders under the hammer
     if (Lumen.audio) Lumen.audio.playKeyStrike(char === ' ');
 
     state.cursorCol++;

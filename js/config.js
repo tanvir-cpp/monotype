@@ -17,6 +17,16 @@ window.Lumen = window.Lumen || {};
   ];
 
   Lumen.THEMES = {
+    white: {
+      name: 'Bright White',
+      paperBase: '#f6f4ee',
+      vignetteEdge: 'rgba(120, 112, 98, 0.30)',
+      inkColor: '#1b1a18',
+      // Soft warm lamp glow that brightens (not muddies) white paper
+      coneCore: [255, 250, 232],
+      coneMid: [250, 240, 212],
+      coneOuter: [232, 222, 198]
+    },
     standard: {
       name: 'Fibrous Taupe',
       paperBase: '#5c5852',
@@ -57,9 +67,10 @@ window.Lumen = window.Lumen || {};
     paperScrollOffsetLines: 0,
     targetPaperY: 0,
     currentPaperY: 0,
+    strikeKick: 0,
 
     // Calibrated ~112-degree V-cone lamp settings (25% to 120%)
-    themeKey: 'standard',
+    themeKey: 'white',
     lampIntensity: 0.85,
     coneSpreadDeg: 112,
     fontFamily: "'Courier Prime', monospace",
