@@ -562,7 +562,8 @@ window.Lumen = window.Lumen || {};
     if (dom.actionExportPng) {
       dom.actionExportPng.addEventListener('click', () => {
         closeAllPopovers();
-        if (!Lumen.exportPagePNG) return;
+        if (!Lumen.exportPagePNG) { showToast('PNG export unavailable — hard refresh the page'); return; }
+        showToast('Preparing image…');
         Lumen.exportPagePNG().then((blob) => {
           if (!blob) { showToast('Nothing to export'); return; }
           const url = URL.createObjectURL(blob);
@@ -574,7 +575,10 @@ window.Lumen = window.Lumen || {};
           document.body.removeChild(a);
           setTimeout(() => URL.revokeObjectURL(url), 1000);
           showToast('Exported .png');
-        }).catch(() => showToast('PNG export failed'));
+        }).catch((err) => {
+          console.error('PNG export failed', err);
+          showToast('PNG export failed');
+        });
       });
     }
 

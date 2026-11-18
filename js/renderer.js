@@ -360,13 +360,27 @@ window.Lumen = window.Lumen || {};
         });
       });
 
-      return new Promise((resolve) => canvas.toBlob(resolve, 'image/png'));
+      return new Promise((resolve) => {
+        const fallback = () => {
+          try {
+            const bin = atob(canvas.toDataURL('image/png').split(',')[1]);
+            const bytes = new Uint8Array(bin.length);
+            for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+            resolve(new Blob([bytes], { type: 'image/png' }));
+          } catch (e) { resolve(null); }
+        };
+        try {
+          canvas.toBlob((b) => (b ? resolve(b) : fallback()), 'image/png');
+        } catch (e) { fallback(); }
+      });
     };
 
-    const ready = document.fonts && document.fonts.load
+    // Wait for the web font, but never hang the export if it is slow or blocked
+    const fontReady = document.fonts && document.fonts.load
       ? document.fonts.load(`${fontPx}px ${state.fontFamily}`).catch(() => {})
       : Promise.resolve();
-    return ready.then(draw);
+    const timeout = new Promise((resolve) => setTimeout(resolve, 1200));
+    return Promise.race([fontReady, timeout]).then(draw);
   }
 
   Lumen.exportPagePNG = exportPagePNG;
